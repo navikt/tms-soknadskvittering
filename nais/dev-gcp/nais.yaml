@@ -1,0 +1,59 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: tms-soknadskvittering
+  namespace: min-side
+  labels:
+    team: min-side
+spec:
+  image: {{version}}
+  port: 8080
+  liveness:
+    path: /isalive
+    initialDelay: 30
+  readiness:
+    path: /isready
+    initialDelay: 5
+  prometheus:
+    path: /metrics
+    enabled: true
+  secureLogs:
+    enabled: true
+  replicas:
+    min: 2
+    max: 4
+    cpuThresholdPercentage: 100
+  leaderElection: true
+  kafka:
+    pool: nav-dev
+  tokenx:
+    enabled: true
+  gcp:
+    sqlInstances:
+      - name: soknadskvittering
+        type: POSTGRES_15
+        tier: db-f1-micro
+        diskType: SSD
+        diskSize: 10
+        diskAutoresize: false
+        autoBackupHour: 3
+        databases:
+          - name: soknadskvittering
+            envVarPrefix: DB
+        maintenance:
+          day: 1
+          hour: 4
+        cascadingDelete: false
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      cpu: "20m"
+      memory: 128Mi
+  env:
+    - name: GROUP_ID
+      value: tms-soknadskvittering-rapid-02
+    - name: KAFKA_TOPIC
+      value: min-side.aapen-utkast-v1
+
+
