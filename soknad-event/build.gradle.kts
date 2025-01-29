@@ -23,7 +23,8 @@ repositories {
 }
 
 dependencies {
-    implementation(KotlinxSerialization.json)
+    implementation(JacksonDatatype.datatypeJsr310)
+    implementation(JacksonDatatype.moduleKotlin)
     testImplementation(JunitPlatform.launcher)
     testImplementation(JunitJupiter.api)
     testImplementation(JunitJupiter.engine)
@@ -59,7 +60,7 @@ publishing {
     publications {
         create<MavenPublication>("gpr") {
             groupId = "no.nav.tms.soknadskvittering"
-            artifactId = "builder"
+            artifactId = "soknad-event"
             version = libraryVersion
             from(components["java"])
 

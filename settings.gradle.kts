@@ -8,4 +8,4 @@
  */
 
 rootProject.name = "tms-soknadskvittering"
-include("app", "lib")
+include("app", "lib", "soknad-event")
