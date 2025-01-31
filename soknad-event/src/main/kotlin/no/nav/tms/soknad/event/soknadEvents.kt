@@ -11,11 +11,12 @@ data class SoknadOpprettet(
     val tittel: String,
     val temakode: String,
     val skjemanummer: String,
-    val mottatt: ZonedDateTime,
+    val mottattTidspunkt: ZonedDateTime,
     val fristEttersending: LocalDate,
     val linkSoknad: String?,
     val journalpostId: String?,
-    val vedlegg: List<Vedlegg>
+    val vedlegg: List<Vedlegg>,
+    val etterspurteVedlegg: List<EtterspurtVedlegg>
 ) {
     @JsonProperty("@event_name") val eventName = "soknad_opprettet"
 }
@@ -41,7 +42,8 @@ data class VedleggEtterspurt(
     val brukerErAvsender: Boolean,
     val tittel: String,
     val linkEttersending: String?,
-    val beskrivelse: String?
+    val beskrivelse: String?,
+    val tidspunktEtterspurt: ZonedDateTime
 ) {
     @JsonProperty("@event_name") val eventName = "vedlegg_etterspurt"
 }
@@ -49,8 +51,9 @@ data class VedleggEtterspurt(
 data class VedleggMottatt(
     val soknadsId: String,
     val vedleggsId: String,
-    val tittel: String?,
+    val tittel: String,
     val linkVedlegg: String?,
+    val brukerErAvsender: Boolean,
     val tidspunktMottatt: ZonedDateTime
 ) {
     @JsonProperty("@event_name") val eventName = "vedlegg_mottatt"
@@ -58,11 +61,14 @@ data class VedleggMottatt(
 
 data class Vedlegg(
     val vedleggsId: String,
-    val brukerErAvsender: Boolean,
-    val erMottatt: Boolean,
     val tittel: String,
-    val linkVedlegg: String?,
-    val linkEttersending: String?,
+    val linkVedlegg: String
+)
+
+data class EtterspurtVedlegg(
+    val vedleggsId: String,
+    val brukerErAvsender: Boolean,
+    val tittel: String,
     val beskrivelse: String?,
-    val tidspunktMottatt: ZonedDateTime
+    val linkEttersending: String?
 )

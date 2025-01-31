@@ -6,7 +6,6 @@ import no.nav.tms.common.util.config.StringEnvVar
 
 class PostgresDatabase : Database {
 
-
     private val envDataSource: HikariDataSource
 
     init {
