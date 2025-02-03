@@ -74,9 +74,9 @@ class SoknadsKvitteringRepository(private val database: Database) {
                 update
                     soknadskvittering
                 set
-                    fristEttersending = coalesce(fristEttersending, :fristEttersending),
-                    linkSoknad = coalesce(linkSoknad, :linkSoknad),
-                    journalpostId = coalesce(journalpostId, :journalpostId)
+                    fristEttersending = coalesce(:fristEttersending, fristEttersending),
+                    linkSoknad = coalesce(:linkSoknad, linkSoknad),
+                    journalpostId = coalesce(:journalpostId, journalpostId)
                 where
                     soknadsId = :soknadsId
             """, mapOf(

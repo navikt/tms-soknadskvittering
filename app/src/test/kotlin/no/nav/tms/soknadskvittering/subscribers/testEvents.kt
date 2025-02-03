@@ -33,6 +33,21 @@ fun opprettetEvent(
 } 
 """
 
+fun oppdatertEvent(
+    soknadsId: String,
+    fristEttersending: LocalDate? = null,
+    linkSoknad: String? = null,
+    journalpostId: String? = null
+) = """
+{
+    "@event_name": "soknad_oppdatert",
+    "soknadsId": "$soknadsId",
+    "fristEttersending": ${fristEttersending?.toString().asJson()}, 
+    "linkSoknad": ${linkSoknad.asJson()}, 
+    "journalpostId": ${journalpostId.asJson()} 
+}
+"""
+
 private fun Any?.asJson() = if (this == null) {
     "null"
 } else if (this is String) {

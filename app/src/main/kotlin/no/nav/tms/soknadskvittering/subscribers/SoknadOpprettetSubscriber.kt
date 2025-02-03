@@ -2,14 +2,18 @@ package no.nav.tms.soknadskvittering.subscribers
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.treeToValue
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.tms.kafka.application.*
+import no.nav.tms.soknad.event.SoknadEvent
 import no.nav.tms.soknadskvittering.EtterspurtVedlegg
 import no.nav.tms.soknadskvittering.SoknadsKvittering
 import no.nav.tms.soknadskvittering.MottattVedlegg
 import no.nav.tms.soknadskvittering.setup.LocalDateHelper.asLocalDate
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper.asZonedDateTime
+import no.nav.tms.soknadskvittering.setup.defaultObjectMapper
 import no.nav.tms.soknadskvittering.setup.withMDC
 
 class SoknadOpprettetSubscriber(private val repository: SoknadsKvitteringRepository): Subscriber() {
@@ -33,39 +37,43 @@ class SoknadOpprettetSubscriber(private val repository: SoknadsKvitteringReposit
 
     private val log = KotlinLogging.logger {}
 
+    private val objectMapper = defaultObjectMapper()
+
     override suspend fun receive(jsonMessage: JsonMessage) = withMDC(jsonMessage) {
-        val vedlegg = jsonMessage.list("mottatteVedlegg").map { vedleggNode ->
+        val opprettetEvent: SoknadEvent.SoknadOpprettet = objectMapper.treeToValue(jsonMessage.json)
+
+        val mottatteVedlegg = opprettetEvent.mottatteVedlegg.map {
             MottattVedlegg(
-                vedleggsId = vedleggNode["vedleggsId"].asText(),
-                tittel = vedleggNode["tittel"].asText(),
-                linkVedlegg = vedleggNode["linkVedlegg"]?.asText(),
+                vedleggsId = it.vedleggsId,
+                tittel = it.tittel,
+                linkVedlegg = it.linkVedlegg,
                 brukerErAvsender = true,
-                tidspunktMottatt = jsonMessage["tidspunktMottatt"].asZonedDateTime()
+                tidspunktMottatt = opprettetEvent.tidspunktMottatt
             )
         }
 
-        val etterspurteVedlegg = jsonMessage.list("etterspurteVedlegg").map { etterspurtNode ->
+        val etterspurteVedlegg = opprettetEvent.etterspurteVedlegg.map {
             EtterspurtVedlegg(
-                vedleggsId = etterspurtNode["vedleggsId"].asText(),
-                brukerErAvsender = etterspurtNode["brukerErAvsender"].asBoolean(),
-                tittel = etterspurtNode["tittel"].asText(),
-                linkEttersending = etterspurtNode["linkEttersending"]?.asText(),
-                beskrivelse = etterspurtNode["beskrivelse"]?.asText(),
-                tidspunktEtterspurt = jsonMessage["tidspunktMottatt"].asZonedDateTime(),
+                vedleggsId = it.vedleggsId,
+                brukerErAvsender = it.brukerErAvsender,
+                tittel = it.tittel,
+                linkEttersending = it.linkEttersending,
+                beskrivelse = it.beskrivelse,
+                tidspunktEtterspurt = opprettetEvent.tidspunktMottatt,
             )
         }
 
         val soknadsKvittering = SoknadsKvittering(
-            soknadsId = jsonMessage["soknadsId"].asText(),
-            ident = jsonMessage["ident"].asText(),
-            tittel = jsonMessage["tittel"].asText(),
-            temakode = jsonMessage["temakode"].asText(),
-            skjemanummer = jsonMessage["skjemanummer"].asText(),
-            tidspunktMottatt = jsonMessage["tidspunktMottatt"].asZonedDateTime(),
-            fristEttersending = jsonMessage["fristEttersending"].asLocalDate(),
-            linkSoknad = jsonMessage.getOrNull("linkSoknad")?.asText(),
-            journalpostId = jsonMessage.getOrNull("journalpostId")?.asText(),
-            mottatteVedlegg = vedlegg,
+            soknadsId = opprettetEvent.soknadsId,
+            ident = opprettetEvent.ident,
+            tittel = opprettetEvent.tittel,
+            temakode = opprettetEvent.temakode,
+            skjemanummer = opprettetEvent.skjemanummer,
+            tidspunktMottatt = opprettetEvent.tidspunktMottatt,
+            fristEttersending = opprettetEvent.fristEttersending,
+            linkSoknad = opprettetEvent.linkSoknad,
+            journalpostId = opprettetEvent.journalpostId,
+            mottatteVedlegg = mottatteVedlegg,
             etterspurteVedlegg = etterspurteVedlegg,
             opprettet = ZonedDateTimeHelper.nowAtUtc(),
             ferdigstilt = null
@@ -77,28 +85,6 @@ class SoknadOpprettetSubscriber(private val repository: SoknadsKvitteringReposit
             } else {
                 log.info { "Ignorerte duplikat soknadskvittering" }
             }
-        }
-    }
-
-    private val objectMapper = jacksonObjectMapper()
-
-    private fun JsonMessage.list(fieldName: String): List<JsonNode> {
-        val field = get(fieldName)
-
-        if (!field.isArray) {
-            throw MessageException("Field $fieldName was not an array node")
-        }
-
-        return field.map {
-            val objectNode = objectMapper.createObjectNode()
-
-            it.fields().forEach { (name, value) ->
-                it.get(name)
-                    .takeUnless { it.isMissingOrNull() }
-                    ?.let { objectNode.replace(name, value) }
-            }
-
-            objectNode
         }
     }
 }

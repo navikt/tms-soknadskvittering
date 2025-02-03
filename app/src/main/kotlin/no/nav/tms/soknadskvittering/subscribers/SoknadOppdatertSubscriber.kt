@@ -1,11 +1,14 @@
 package no.nav.tms.soknadskvittering.subscribers
 
+import com.fasterxml.jackson.module.kotlin.treeToValue
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.tms.common.observability.withTraceLogging
 import no.nav.tms.kafka.application.JsonMessage
 import no.nav.tms.kafka.application.Subscriber
 import no.nav.tms.kafka.application.Subscription
+import no.nav.tms.soknad.event.SoknadEvent
 import no.nav.tms.soknadskvittering.setup.LocalDateHelper.asLocalDate
+import no.nav.tms.soknadskvittering.setup.defaultObjectMapper
 import no.nav.tms.soknadskvittering.setup.withMDC
 
 class SoknadOppdatertSubscriber(private val repository: SoknadsKvitteringRepository): Subscriber() {
@@ -19,14 +22,17 @@ class SoknadOppdatertSubscriber(private val repository: SoknadsKvitteringReposit
         )
 
     private val log = KotlinLogging.logger {}
+    private val objectMapper = defaultObjectMapper()
 
     override suspend fun receive(jsonMessage: JsonMessage) = withMDC(jsonMessage) {
 
+        val oppdatertEvent: SoknadEvent.SoknadOppdatert = objectMapper.treeToValue(jsonMessage.json)
+
         repository.updateSoknadsKvittering(
-            soknadsId = jsonMessage["soknadsId"].asText(),
-            fristEttersending = jsonMessage.getOrNull("fristEttersending")?.asLocalDate(),
-            linkSoknad = jsonMessage.getOrNull("linkSoknad")?.asText(),
-            journalpostId = jsonMessage.getOrNull("journalpostId")?.asText(),
+            soknadsId = oppdatertEvent.soknadsId,
+            fristEttersending = oppdatertEvent.fristEttersending,
+            linkSoknad = oppdatertEvent.linkSoknad,
+            journalpostId = oppdatertEvent.journalpostId,
         ).let { wasUpdated ->
 
             if (wasUpdated) {

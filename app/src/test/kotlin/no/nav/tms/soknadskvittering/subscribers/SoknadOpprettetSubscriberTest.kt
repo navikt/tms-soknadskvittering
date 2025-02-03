@@ -1,11 +1,14 @@
 package no.nav.tms.soknadskvittering.subscribers
 
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import kotliquery.queryOf
 import no.nav.tms.kafka.application.MessageBroadcaster
 import no.nav.tms.soknadskvittering.common.LocalPostgresDatabase
 import no.nav.tms.soknadskvittering.common.shouldBeSameTimeAs
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper.nowAtUtc
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.UUID
@@ -16,6 +19,11 @@ class SoknadOpprettetSubscriberTest {
     private val repository = SoknadsKvitteringRepository(database)
 
     private val messageBroadcaster = MessageBroadcaster(SoknadOpprettetSubscriber(repository))
+
+    @AfterEach
+    fun cleanUp() {
+        database.update { queryOf("delete from soknadskvittering") }
+    }
 
     @Test
     fun `oppretter søknadskvittering i databasen`() {
@@ -118,5 +126,50 @@ class SoknadOpprettetSubscriberTest {
 
         repository.getSoknadsKvittering(soknadsId).shouldNotBeNull()
         repository.getSoknadskvitteringForUser(ident).size shouldBe 1
+    }
+
+    @Test
+    fun `behandler null-elementer i etterspurte vedlegg riktig`() {
+        val soknadsId = UUID.randomUUID().toString()
+        val ident = "12345678900"
+
+        val feltErNull = """
+        {
+            "vedleggsId": "vedlegg-1",
+            "brukerErAvsender": true,
+            "tittel": "Du må sende inn noe",
+            "beskrivelse": null,
+            "linkEttersending": "https://ettersending"
+        }
+        """
+
+        val feltMangler = """
+        {
+            "vedleggsId": "vedlegg-2",
+            "brukerErAvsender": false,
+            "tittel": "Noen andre må sende inn noe",
+            "beskrivelse": "Din lege må sende inn noe..."
+        }
+        """
+
+        opprettetEvent(
+            soknadsId,
+            ident,
+            etterspurteVedlegg = listOf(feltErNull, feltMangler)
+        ).let { messageBroadcaster.broadcastJson(it) }
+
+
+        val kvittering = repository.getSoknadsKvittering(soknadsId)
+        kvittering.shouldNotBeNull()
+
+        kvittering.etterspurteVedlegg.first { it.vedleggsId == "vedlegg-1" }.let {
+            it.beskrivelse.shouldBeNull()
+            it.linkEttersending.shouldNotBeNull()
+        }
+
+        kvittering.etterspurteVedlegg.first { it.vedleggsId == "vedlegg-2" }.let {
+            it.beskrivelse.shouldNotBeNull()
+            it.linkEttersending.shouldBeNull()
+        }
     }
 }

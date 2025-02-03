@@ -47,6 +47,7 @@ dependencies {
     implementation(JacksonDatatype.moduleKotlin)
     implementation(JacksonDatatype.datatypeJsr310)
     implementation(TmsKafkaTools.kafkaApplication)
+    implementation(project(":soknad-event"))
 
     testImplementation(JunitPlatform.launcher)
     testImplementation(JunitJupiter.api)
