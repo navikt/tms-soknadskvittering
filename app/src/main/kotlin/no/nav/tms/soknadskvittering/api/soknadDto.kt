@@ -8,7 +8,7 @@ data class SoknadsKvitteringDto(
     val tittel: String,
     val tema: String,
     val skjemanummer: String,
-    val mottattTidspunkt: ZonedDateTime,
+    val tidspunktMottatt: ZonedDateTime,
     val fristEttersending: LocalDate,
     val linkSoknad: String?,
     val journalpost: String?,

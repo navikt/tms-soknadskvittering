@@ -1,7 +1,8 @@
-package no.nav.tms.soknadskvittering.setup
+package no.nav.tms.soknadskvittering.common
 
 import com.zaxxer.hikari.HikariDataSource
 import kotliquery.queryOf
+import no.nav.tms.soknadskvittering.setup.Database
 import org.flywaydb.core.Flyway
 import org.testcontainers.containers.PostgreSQLContainer
 

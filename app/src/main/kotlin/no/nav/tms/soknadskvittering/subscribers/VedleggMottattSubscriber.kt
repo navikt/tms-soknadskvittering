@@ -5,7 +5,7 @@ import no.nav.tms.kafka.application.JsonMessage
 import no.nav.tms.kafka.application.Subscriber
 import no.nav.tms.kafka.application.Subscription
 import no.nav.tms.soknadskvittering.SoknadsKvittering
-import no.nav.tms.soknadskvittering.Vedlegg
+import no.nav.tms.soknadskvittering.MottattVedlegg
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper.asZonedDateTime
 import no.nav.tms.soknadskvittering.setup.withMDC
 
@@ -37,7 +37,7 @@ class VedleggMottattSubscriber(private val repository: SoknadsKvitteringReposito
 
         val vedleggsId = jsonMessage["vedleggsId"].asText()
 
-        if (soknadsKvittering.vedlegg.any { it.vedleggsId == vedleggsId}) {
+        if (soknadsKvittering.mottatteVedlegg.any { it.vedleggsId == vedleggsId}) {
             log.info { "Kan ikke legge til samme vedlegg to ganger" }
 
         } else if (soknadsKvittering.etterspurteVedlegg.any { it.vedleggsId == vedleggsId }) {
@@ -58,7 +58,7 @@ class VedleggMottattSubscriber(private val repository: SoknadsKvitteringReposito
     ) {
         val vedleggsId = jsonMessage["vedleggsId"].asText()
 
-        val mottatteVedlegg = soknadsKvittering.vedlegg + Vedlegg(
+        val mottatteVedlegg = soknadsKvittering.mottatteVedlegg + MottattVedlegg(
             vedleggsId = vedleggsId,
             brukerErAvsender = jsonMessage["brukerErAvsender"].asBoolean(),
             tittel = jsonMessage["tittel"].asText(),
@@ -72,14 +72,14 @@ class VedleggMottattSubscriber(private val repository: SoknadsKvitteringReposito
     }
 
     private fun nyttVedlegg(soknadsKvittering: SoknadsKvittering, jsonMessage: JsonMessage) {
-        Vedlegg(
+        MottattVedlegg(
             vedleggsId = jsonMessage["vedleggsId"].asText(),
             brukerErAvsender = jsonMessage["brukerErAvsender"].asBoolean(),
             tittel = jsonMessage["tittel"].asText(),
             linkVedlegg = jsonMessage.getOrNull("linkVedlegg")?.asText(),
             tidspunktMottatt = jsonMessage["ttidspunktMottatt"].asZonedDateTime()
         ).let {
-            repository.oppdaterMottatteVedlegg(soknadsKvittering.soknadsId, soknadsKvittering.vedlegg + it)
+            repository.oppdaterMottatteVedlegg(soknadsKvittering.soknadsId, soknadsKvittering.mottatteVedlegg + it)
         }
     }
 }

@@ -1,23 +1,21 @@
 package no.nav.tms.soknadskvittering.subscribers
 
-import no.nav.tms.soknadskvittering.EtterspurtVedlegg
-import no.nav.tms.soknadskvittering.Vedlegg
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper.nowAtUtc
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
-fun opprettEvent(
+fun opprettetEvent(
     soknadsId: String,
     ident: String = "12345678910",
     tittel: String = "tittel",
     temakode: String = "KOD",
     skjemanummer: String = "skjemanummer",
-    mottattTidspunkt: ZonedDateTime = nowAtUtc(),
+    tidspunktMottatt: ZonedDateTime = nowAtUtc(),
     fristEttersending: LocalDate = LocalDate.now().plusDays(14),
     linkSoknad: String? = "https://link.til.soknad",
     journalpostId: String? = "journalpostId",
-    vedlegg: List<Vedlegg> = emptyList(),
-    etterspurteVedlegg: List<EtterspurtVedlegg> = emptyList(),
+    mottatteVedlegg: List<String> = emptyList(),
+    etterspurteVedlegg: List<String> = emptyList(),
 ) = """
 {
     "@event_name": "soknad_opprettet",
@@ -26,12 +24,12 @@ fun opprettEvent(
     "tittel": "$tittel",
     "temakode": "$temakode",
     "skjemanummer": "$skjemanummer",
-    "mottattTidspunkt": "$mottattTidspunkt",
+    "tidspunktMottatt": "$tidspunktMottatt",
     "fristEttersending": "$fristEttersending",
     "linkSoknad": ${linkSoknad.asJson()},
     "journalpostId": ${journalpostId.asJson()},
-    "vedlegg": ${vedleggJson(vedlegg)},
-    "etterspurteVedlegg": ${etterspurteVedleggJson(etterspurteVedlegg)}
+    "mottatteVedlegg": ${mottatteVedlegg.joinToString(prefix = "[", postfix = "]")},
+    "etterspurteVedlegg": ${etterspurteVedlegg.joinToString(prefix = "[", postfix = "]")}
 } 
 """
 
@@ -43,25 +41,32 @@ private fun Any?.asJson() = if (this == null) {
     "$this"
 }
 
-private fun vedleggJson(vedlegg: List<Vedlegg>): String = vedlegg.joinToString(prefix = "[", postfix = "]") {
+fun mottattVedleggJson(
+    vedleggsId: String,
+    tittel: String = "Navn på vedlegg",
+    linkVedlegg: String = "https://link.til.vedlegg"
+) =
     """
 {
-    "vedleggsId": "${it.vedleggsId}",
-    "tittel": "${it.tittel}",
-    "linkVedlegg": ${it.linkVedlegg}
+    "vedleggsId": "$vedleggsId",
+    "tittel": "$tittel",
+    "linkVedlegg": "$linkVedlegg"
 } 
     """
-}
 
-private fun etterspurteVedleggJson(etterspurteVedlegg: List<EtterspurtVedlegg>): String = etterspurteVedlegg
-    .joinToString(prefix = "[", postfix = "]") {
+fun etterspurteVedleggJson(
+    vedleggsId: String,
+    brukerErAvsender: Boolean = true,
+    tittel: String = "Navn på vedlegg",
+    beskrivelse: String? = null,
+    linkEttersending: String? = null
+): String =
     """
 {
-    "vedleggsId": "${it.vedleggsId}",
-    "brukerErAvsender": "${it.brukerErAvsender}",
-    "tittel": "${it.tittel}"
-    "beskrivelse": ${it.beskrivelse.asJson()}
-    "linkEttersending": ${it.linkEttersending.asJson()}
+    "vedleggsId": "$vedleggsId",
+    "brukerErAvsender": "$brukerErAvsender",
+    "tittel": "$tittel",
+    "beskrivelse": ${beskrivelse.asJson()},
+    "linkEttersending": ${linkEttersending.asJson()}
 } 
     """
-}

@@ -4,11 +4,11 @@ create table soknadskvittering(
     tittel text not null,
     temakode text not null,
     skjemanummer text not null,
-    mottattTidspunkt timestamp with time zone not null,
+    tidspunktMottatt timestamp with time zone not null,
     fristEttersending date not null,
     linkSoknad text,
     journalpostId text,
-    vedlegg jsonb,
+    mottatteVedlegg jsonb,
     etterspurteVedlegg jsonb,
     opprettet timestamp with time zone not null,
     ferdigstilt timestamp with time zone

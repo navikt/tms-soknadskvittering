@@ -3,7 +3,7 @@ package no.nav.tms.soknadskvittering.subscribers
 import kotliquery.queryOf
 import no.nav.tms.soknadskvittering.EtterspurtVedlegg
 import no.nav.tms.soknadskvittering.SoknadsKvittering
-import no.nav.tms.soknadskvittering.Vedlegg
+import no.nav.tms.soknadskvittering.MottattVedlegg
 import no.nav.tms.soknadskvittering.setup.*
 import java.time.LocalDate
 
@@ -21,11 +21,11 @@ class SoknadsKvitteringRepository(private val database: Database) {
                         tittel,
                         temakode,
                         skjemanummer,
-                        mottattTidspunkt,
+                        tidspunktMottatt,
                         fristEttersending,
                         linkSoknad,
                         journalpostId,
-                        vedlegg,
+                        mottatteVedlegg,
                         etterspurteVedlegg,
                         opprettet,
                         ferdigstilt
@@ -35,11 +35,11 @@ class SoknadsKvitteringRepository(private val database: Database) {
                         :tittel,
                         :temakode,
                         :skjemanummer,
-                        :mottattTidspunkt,
+                        :tidspunktMottatt,
                         :fristEttersending,
                         :linkSoknad,
                         :journalpostId,
-                        :vedlegg,
+                        :mottatteVedlegg,
                         :etterspurteVedlegg,
                         :opprettet,
                         :ferdigstilt
@@ -50,11 +50,11 @@ class SoknadsKvitteringRepository(private val database: Database) {
                     "tittel" to soknadsKvittering.tittel,
                     "temakode" to soknadsKvittering.temakode,
                     "skjemanummer" to soknadsKvittering.skjemanummer,
-                    "mottattTidspunkt" to soknadsKvittering.mottattTidspunkt,
+                    "tidspunktMottatt" to soknadsKvittering.tidspunktMottatt,
                     "fristEttersending" to soknadsKvittering.fristEttersending,
                     "linkSoknad" to soknadsKvittering.linkSoknad,
                     "journalpostId" to soknadsKvittering.journalpostId,
-                    "vedlegg" to soknadsKvittering.vedlegg.toJsonb(objectMapper),
+                    "mottatteVedlegg" to soknadsKvittering.mottatteVedlegg.toJsonb(objectMapper),
                     "etterspurteVedlegg" to soknadsKvittering.etterspurteVedlegg.toJsonb(objectMapper),
                     "opprettet" to soknadsKvittering.opprettet,
                     "ferdigstilt" to soknadsKvittering.ferdigstilt
@@ -97,11 +97,11 @@ class SoknadsKvitteringRepository(private val database: Database) {
                     tittel,
                     temakode,
                     skjemanummer,
-                    mottattTidspunkt,
+                    tidspunktMottatt,
                     fristEttersending,
                     linkSoknad,
                     journalpostId,
-                    vedlegg,
+                    mottatteVedlegg,
                     etterspurteVedlegg,
                     opprettet,
                     ferdigstilt
@@ -118,11 +118,11 @@ class SoknadsKvitteringRepository(private val database: Database) {
                     tittel = it.string("tittel"),
                     temakode = it.string("temakode"),
                     skjemanummer = it.string("skjemanummer"),
-                    mottattTidspunkt = it.zonedDateTime("mottattTidspunkt"),
+                    tidspunktMottatt = it.zonedDateTime("tidspunktMottatt"),
                     fristEttersending = it.localDate("fristEttersending"),
                     linkSoknad = it.stringOrNull("linkSoknad"),
                     journalpostId = it.stringOrNull("journalpostId"),
-                    vedlegg = it.json("vedlegg", objectMapper),
+                    mottatteVedlegg = it.json("mottatteVedlegg", objectMapper),
                     etterspurteVedlegg = it.json("etterspurteVedlegg", objectMapper),
                     opprettet = it.zonedDateTime("opprettet"),
                     ferdigstilt = it.zonedDateTimeOrNull("ferdigstilt")
@@ -140,11 +140,11 @@ class SoknadsKvitteringRepository(private val database: Database) {
                     tittel,
                     temakode,
                     skjemanummer,
-                    mottattTidspunkt,
+                    tidspunktMottatt,
                     fristEttersending,
                     linkSoknad,
                     journalpostId,
-                    vedlegg,
+                    mottatteVedlegg,
                     etterspurteVedlegg,
                     opprettet,
                     ferdigstilt
@@ -161,11 +161,11 @@ class SoknadsKvitteringRepository(private val database: Database) {
                     tittel = it.string("tittel"),
                     temakode = it.string("temakode"),
                     skjemanummer = it.string("skjemanummer"),
-                    mottattTidspunkt = it.zonedDateTime("mottattTidspunkt"),
+                    tidspunktMottatt = it.zonedDateTime("tidspunktMottatt"),
                     fristEttersending = it.localDate("fristEttersending"),
                     linkSoknad = it.stringOrNull("linkSoknad"),
                     journalpostId = it.stringOrNull("journalpostId"),
-                    vedlegg = it.json("vedlegg", objectMapper),
+                    mottatteVedlegg = it.json("mottatteVedlegg", objectMapper),
                     etterspurteVedlegg = it.json("etterspurteVedlegg", objectMapper),
                     opprettet = it.zonedDateTime("opprettet"),
                     ferdigstilt = it.zonedDateTimeOrNull("ferdigstilt")
@@ -183,59 +183,59 @@ class SoknadsKvitteringRepository(private val database: Database) {
         }
     }
 
-    fun oppdaterMottatteVedlegg(soknadsId: String, vedlegg: List<Vedlegg>) {
+    fun oppdaterMottatteVedlegg(soknadsId: String, mottatteVedlegg: List<MottattVedlegg>) {
         database.update {
             queryOf(
                 """
                     update 
                         soknadskvittering
                     set
-                        vedlegg = :vedlegg
+                        mottatteVedlegg = :mottatteVedlegg
                     where
                         soknadsId = :soknadsId
                 """,
                 mapOf(
                     "soknadsId" to soknadsId,
-                    "vedlegg" to vedlegg.toJsonb(objectMapper),
+                    "mottatteVedlegg" to mottatteVedlegg.toJsonb(objectMapper),
                 )
             )
         }
     }
 
-    fun oppdaterEtterspurteVedlegg(soknadsId: String, vedlegg: List<EtterspurtVedlegg>) {
+    fun oppdaterEtterspurteVedlegg(soknadsId: String, mottatteVedlegg: List<EtterspurtVedlegg>) {
         database.update {
             queryOf(
                 """
                     update 
                         soknadskvittering
                     set
-                        vedlegg = :vedlegg
+                        mottatteVedlegg = :mottatteVedlegg
                     where
                         soknadsId = :soknadsId
                 """,
                 mapOf(
                     "soknadsId" to soknadsId,
-                    "vedlegg" to vedlegg.toJsonb(objectMapper),
+                    "mottatteVedlegg" to mottatteVedlegg.toJsonb(objectMapper),
                 )
             )
         }
     }
 
-    fun oppdaterAlleVedlegg(soknadsId: String, vedlegg: List<Vedlegg>, etterspurteVedlegg: List<EtterspurtVedlegg>) {
+    fun oppdaterAlleVedlegg(soknadsId: String, mottatteVedlegg: List<MottattVedlegg>, etterspurteVedlegg: List<EtterspurtVedlegg>) {
         database.update {
             queryOf(
                 """
                     update 
                         soknadskvittering
                     set
-                        vedlegg = :vedlegg,
+                        mottatteVedlegg = :mottatteVedlegg,
                         etterspurteVedlegg = :etterspurteVedlegg
                     where
                         soknadsId = :soknadsId
                 """,
                 mapOf(
                     "soknadsId" to soknadsId,
-                    "vedlegg" to vedlegg.toJsonb(objectMapper),
+                    "mottatteVedlegg" to mottatteVedlegg.toJsonb(objectMapper),
                     "etterspurteVedlegg" to etterspurteVedlegg.toJsonb(objectMapper)
                 )
             )

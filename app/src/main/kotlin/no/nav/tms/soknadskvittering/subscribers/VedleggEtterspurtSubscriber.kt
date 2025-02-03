@@ -37,7 +37,7 @@ class VedleggEtterspurtSubscriber(private val repository: SoknadsKvitteringRepos
     private fun leggTilEtterspurtVedlegg(soknadsKvittering: SoknadsKvittering, jsonMessage: JsonMessage) {
         val vedleggsId = jsonMessage["vedleggsId"].asText()
 
-        val vedleggEksisterer = soknadsKvittering.vedlegg.any { it.vedleggsId == vedleggsId }
+        val vedleggEksisterer = soknadsKvittering.mottatteVedlegg.any { it.vedleggsId == vedleggsId }
 
         if (vedleggEksisterer) {
             log.info { "Kan ikke etterspørre vedlegg på nytt" }

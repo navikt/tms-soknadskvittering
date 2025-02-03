@@ -9,17 +9,17 @@ data class SoknadsKvittering(
     val tittel: String,
     val temakode: String,
     val skjemanummer: String,
-    val mottattTidspunkt: ZonedDateTime,
+    val tidspunktMottatt: ZonedDateTime,
     val fristEttersending: LocalDate,
     val linkSoknad: String?,
     val journalpostId: String?,
-    val vedlegg: List<Vedlegg>,
+    val mottatteVedlegg: List<MottattVedlegg>,
     val etterspurteVedlegg: List<EtterspurtVedlegg>,
     val opprettet: ZonedDateTime,
     val ferdigstilt: ZonedDateTime?,
 )
 
-data class Vedlegg(
+data class MottattVedlegg(
     val vedleggsId: String,
     val brukerErAvsender: Boolean,
     val tittel: String,
