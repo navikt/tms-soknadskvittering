@@ -202,20 +202,20 @@ class SoknadsKvitteringRepository(private val database: Database) {
         }
     }
 
-    fun oppdaterEtterspurteVedlegg(soknadsId: String, mottatteVedlegg: List<EtterspurtVedlegg>) {
+    fun oppdaterEtterspurteVedlegg(soknadsId: String, etterspurteVedlegg: List<EtterspurtVedlegg>) {
         database.update {
             queryOf(
                 """
                     update 
                         soknadskvittering
                     set
-                        mottatteVedlegg = :mottatteVedlegg
+                        etterspurteVedlegg = :etterspurteVedlegg
                     where
                         soknadsId = :soknadsId
                 """,
                 mapOf(
                     "soknadsId" to soknadsId,
-                    "mottatteVedlegg" to mottatteVedlegg.toJsonb(objectMapper),
+                    "etterspurteVedlegg" to etterspurteVedlegg.toJsonb(objectMapper),
                 )
             )
         }

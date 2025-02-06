@@ -33,5 +33,6 @@ data class EtterspurtVedlegg(
     val tittel: String,
     val linkEttersending: String?,
     val beskrivelse: String?,
-    val tidspunktEtterspurt: ZonedDateTime
+    val tidspunktEtterspurt: ZonedDateTime,
+    val erMottatt: Boolean
 )

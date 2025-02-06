@@ -1,8 +1,5 @@
 package no.nav.tms.soknadskvittering.subscribers
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.treeToValue
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.tms.kafka.application.*
@@ -10,9 +7,7 @@ import no.nav.tms.soknad.event.SoknadEvent
 import no.nav.tms.soknadskvittering.EtterspurtVedlegg
 import no.nav.tms.soknadskvittering.SoknadsKvittering
 import no.nav.tms.soknadskvittering.MottattVedlegg
-import no.nav.tms.soknadskvittering.setup.LocalDateHelper.asLocalDate
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper
-import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper.asZonedDateTime
 import no.nav.tms.soknadskvittering.setup.defaultObjectMapper
 import no.nav.tms.soknadskvittering.setup.withMDC
 
@@ -60,6 +55,7 @@ class SoknadOpprettetSubscriber(private val repository: SoknadsKvitteringReposit
                 linkEttersending = it.linkEttersending,
                 beskrivelse = it.beskrivelse,
                 tidspunktEtterspurt = opprettetEvent.tidspunktMottatt,
+                erMottatt = false
             )
         }
 
@@ -83,7 +79,7 @@ class SoknadOpprettetSubscriber(private val repository: SoknadsKvitteringReposit
             if (wasCreated) {
                 log.info { "Opprettet ny soknadskvittering" }
             } else {
-                log.info { "Ignorerte duplikat soknadskvittering" }
+                log.warn { "Ignorerte duplikat soknadskvittering" }
             }
         }
     }

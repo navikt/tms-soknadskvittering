@@ -15,8 +15,8 @@ object SoknadEvent {
         val fristEttersending: LocalDate,
         val linkSoknad: String?,
         val journalpostId: String?,
-        val mottatteVedlegg: List<MottattVedlegg>,
-        val etterspurteVedlegg: List<EtterspurtVedlegg>
+        val mottatteVedlegg: List<Dto.MottattVedlegg>,
+        val etterspurteVedlegg: List<Dto.EtterspurtVedlegg>
     ) {
         @JsonProperty("@event_name") val eventName = "soknad_opprettet"
     }
@@ -59,19 +59,21 @@ object SoknadEvent {
         @JsonProperty("@event_name") val eventName = "vedlegg_mottatt"
     }
 
-    data class MottattVedlegg(
-        val vedleggsId: String,
-        val tittel: String,
-        val linkVedlegg: String
-    )
+    object Dto {
+        class MottattVedlegg(
+            val vedleggsId: String,
+            val tittel: String,
+            val linkVedlegg: String
+        )
 
-    data class EtterspurtVedlegg(
-        val vedleggsId: String,
-        val brukerErAvsender: Boolean,
-        val tittel: String,
-        val beskrivelse: String?,
-        val linkEttersending: String?
-    )
+        class EtterspurtVedlegg(
+            val vedleggsId: String,
+            val brukerErAvsender: Boolean,
+            val tittel: String,
+            val beskrivelse: String?,
+            val linkEttersending: String?
+        )
+    }
 }
 
 

@@ -1,5 +1,6 @@
 package no.nav.tms.soknadskvittering.subscribers
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
@@ -11,8 +12,8 @@ import java.time.LocalDate
 import java.util.UUID
 
 class SoknadOppdatertSubscriberTest {
-    private val database = LocalPostgresDatabase.cleanDb()
 
+    private val database = LocalPostgresDatabase.cleanDb()
     private val repository = SoknadsKvitteringRepository(database)
 
     private val messageBroadcaster = MessageBroadcaster(
@@ -112,5 +113,19 @@ class SoknadOppdatertSubscriberTest {
             it.linkSoknad shouldBe endeligLink
             it.journalpostId shouldBe endeligJournalpostId
         }
+    }
+
+    @Test
+    fun `ignorerer oppdatering for ukjente soknadsIder`() {
+        val soknadsId = UUID.randomUUID().toString()
+
+        oppdatertEvent(soknadsId).let {
+            messageBroadcaster.broadcastJson(it)
+        }
+
+        database.single {
+            queryOf("select count(*) as antall from soknadskvittering")
+                .map { it.int("antall") }.asSingle
+        } shouldBe 0
     }
 }

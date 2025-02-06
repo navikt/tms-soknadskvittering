@@ -2,12 +2,10 @@ package no.nav.tms.soknadskvittering.subscribers
 
 import com.fasterxml.jackson.module.kotlin.treeToValue
 import io.github.oshai.kotlinlogging.KotlinLogging
-import no.nav.tms.common.observability.withTraceLogging
 import no.nav.tms.kafka.application.JsonMessage
 import no.nav.tms.kafka.application.Subscriber
 import no.nav.tms.kafka.application.Subscription
 import no.nav.tms.soknad.event.SoknadEvent
-import no.nav.tms.soknadskvittering.setup.LocalDateHelper.asLocalDate
 import no.nav.tms.soknadskvittering.setup.defaultObjectMapper
 import no.nav.tms.soknadskvittering.setup.withMDC
 
@@ -38,7 +36,7 @@ class SoknadOppdatertSubscriber(private val repository: SoknadsKvitteringReposit
             if (wasUpdated) {
                 log.info { "Oppdaterte soknadskvittering" }
             } else {
-                log.info { "Fant ikke soknadskvittering som skulle oppdateres" }
+                log.warn { "Fant ikke soknadskvittering som skulle oppdateres" }
             }
         }
     }

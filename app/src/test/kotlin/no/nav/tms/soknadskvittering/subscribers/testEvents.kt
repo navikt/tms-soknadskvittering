@@ -1,5 +1,6 @@
 package no.nav.tms.soknadskvittering.subscribers
 
+import com.github.dockerjava.zerodep.shaded.org.apache.hc.client5.http.entity.mime.StringBody
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper.nowAtUtc
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -48,6 +49,55 @@ fun oppdatertEvent(
 }
 """
 
+fun ferdigstiltEvent(
+    soknadsId: String
+) = """
+{
+    "@event_name": "soknad_ferdigstilt",
+    "soknadsId": "$soknadsId"
+}
+"""
+
+fun vedleggEtterspurtEvent(
+    soknadsId: String,
+    vedleggsId: String,
+    brukerErAvsender: Boolean = true,
+    tittel: String = "tittel",
+    linkEttersending: String? = "https://link.til.ettersending",
+    beskrivelse: String? = null,
+    tidspunktEtterspurt: ZonedDateTime = nowAtUtc()
+) = """
+{
+    "@event_name": "vedlegg_etterspurt",
+    "soknadsId": "$soknadsId",
+    "vedleggsId": "$vedleggsId",
+    "brukerErAvsender": $brukerErAvsender,
+    "tittel": "$tittel",
+    "linkEttersending": ${linkEttersending.asJson()},
+    "beskrivelse": ${beskrivelse.asJson()},
+    "tidspunktEtterspurt": "$tidspunktEtterspurt"
+}
+"""
+
+fun vedleggMottattEvent(
+    soknadsId: String,
+    vedleggsId: String,
+    tittel: String = "tittel",
+    brukerErAvsender: Boolean = true,
+    linkVedlegg: String? = "https://link.til.vedlegg",
+    tidspunktMottatt: ZonedDateTime = nowAtUtc()
+) = """
+{
+    "@event_name": "vedlegg_mottatt",
+    "soknadsId": "$soknadsId",
+    "vedleggsId": "$vedleggsId",
+    "brukerErAvsender": $brukerErAvsender,
+    "tittel": "$tittel",
+    "linkVedlegg": ${linkVedlegg.asJson()},
+    "tidspunktMottatt": "$tidspunktMottatt"
+}
+"""
+
 private fun Any?.asJson() = if (this == null) {
     "null"
 } else if (this is String) {
@@ -69,7 +119,7 @@ fun mottattVedleggJson(
 } 
     """
 
-fun etterspurteVedleggJson(
+fun etterspurtVedleggJson(
     vedleggsId: String,
     brukerErAvsender: Boolean = true,
     tittel: String = "Navn på vedlegg",

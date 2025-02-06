@@ -31,13 +31,3 @@ object ZonedDateTimeHelper {
         }
     }
 }
-
-object LocalDateHelper {
-    fun JsonNode.asLocalDate(): LocalDate {
-        return takeIf(JsonNode::isTextual)
-            ?.asText()
-            ?.takeIf(String::isNotEmpty)
-            ?.let { LocalDate.parse(it) }
-            ?: throw IllegalArgumentException("Field is empty or non-textual")
-    }
-}

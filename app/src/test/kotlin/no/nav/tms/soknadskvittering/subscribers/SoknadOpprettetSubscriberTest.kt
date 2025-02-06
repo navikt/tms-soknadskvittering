@@ -1,10 +1,13 @@
 package no.nav.tms.soknadskvittering.subscribers
 
+import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import no.nav.tms.kafka.application.MessageBroadcaster
+import no.nav.tms.kafka.application.MessageException
 import no.nav.tms.soknadskvittering.common.LocalPostgresDatabase
 import no.nav.tms.soknadskvittering.common.shouldBeSameTimeAs
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper.nowAtUtc
@@ -14,8 +17,8 @@ import java.time.LocalDate
 import java.util.UUID
 
 class SoknadOpprettetSubscriberTest {
-    private val database = LocalPostgresDatabase.cleanDb()
 
+    private val database = LocalPostgresDatabase.cleanDb()
     private val repository = SoknadsKvitteringRepository(database)
 
     private val messageBroadcaster = MessageBroadcaster(SoknadOpprettetSubscriber(repository))
@@ -66,7 +69,7 @@ class SoknadOpprettetSubscriberTest {
                 )
             ),
             etterspurteVedlegg = listOf(
-                etterspurteVedleggJson(
+                etterspurtVedleggJson(
                     vedleggsId = etterspurtVedleggVedleggsId,
                     brukerErAvsender = etterspurtVedleggBrukerErAvsender,
                     tittel = etterspurtVedleggTittel,
