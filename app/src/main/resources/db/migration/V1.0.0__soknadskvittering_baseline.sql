@@ -8,10 +8,12 @@ create table soknadskvittering(
     fristEttersending date not null,
     linkSoknad text,
     journalpostId text,
-    mottatteVedlegg jsonb,
-    etterspurteVedlegg jsonb,
+    mottatteVedlegg jsonb not null,
+    etterspurteVedlegg jsonb not null,
+    produsent jsonb not null,
     opprettet timestamp with time zone not null,
-    ferdigstilt timestamp with time zone
+    ferdigstilt timestamp with time zone,
+    metadata jsonb
 );
 
 create index soknad_ident on soknadskvittering(ident);

@@ -8,4 +8,4 @@
  */
 
 rootProject.name = "tms-soknadskvittering"
-include("app", "soknad-event")
+include("app", "soknad-event", "kotlin-builder")

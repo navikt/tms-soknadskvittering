@@ -5,6 +5,8 @@ import java.time.LocalDate
 import java.time.ZonedDateTime
 
 object SoknadEvent {
+    const val version = "v0.1"
+
     data class SoknadOpprettet(
         val soknadsId: String,
         val ident: String,
@@ -16,7 +18,9 @@ object SoknadEvent {
         val linkSoknad: String?,
         val journalpostId: String?,
         val mottatteVedlegg: List<Dto.MottattVedlegg>,
-        val etterspurteVedlegg: List<Dto.EtterspurtVedlegg>
+        val etterspurteVedlegg: List<Dto.EtterspurtVedlegg>,
+        val produsent: Dto.Produsent,
+        val metadata: Map<String, Any>
     ) {
         @JsonProperty("@event_name") val eventName = "soknad_opprettet"
     }
@@ -25,13 +29,17 @@ object SoknadEvent {
         val soknadsId: String,
         val fristEttersending: LocalDate?,
         val linkSoknad: String?,
-        val journalpostId: String?
+        val journalpostId: String?,
+        val produsent: Dto.Produsent,
+        val metadata: Map<String, Any>
     ) {
         @JsonProperty("@event_name") val eventName = "soknad_oppdatert"
     }
 
     data class SoknadFerdigstilt(
-        val soknadsId: String
+        val soknadsId: String,
+        val produsent: Dto.Produsent,
+        val metadata: Map<String, Any>
     ) {
         @JsonProperty("@event_name") val eventName = "soknad_ferdigstilt"
     }
@@ -43,7 +51,9 @@ object SoknadEvent {
         val tittel: String,
         val linkEttersending: String?,
         val beskrivelse: String?,
-        val tidspunktEtterspurt: ZonedDateTime
+        val tidspunktEtterspurt: ZonedDateTime,
+        val produsent: Dto.Produsent,
+        val metadata: Map<String, Any>
     ) {
         @JsonProperty("@event_name") val eventName = "vedlegg_etterspurt"
     }
@@ -54,12 +64,20 @@ object SoknadEvent {
         val tittel: String,
         val linkVedlegg: String?,
         val brukerErAvsender: Boolean,
-        val tidspunktMottatt: ZonedDateTime
+        val tidspunktMottatt: ZonedDateTime,
+        val produsent: Dto.Produsent,
+        val metadata: Map<String, Any>
     ) {
         @JsonProperty("@event_name") val eventName = "vedlegg_mottatt"
     }
 
     object Dto {
+        class Produsent(
+            val cluster: String,
+            val namespace: String,
+            val appnavn: String
+        )
+
         class MottattVedlegg(
             val vedleggsId: String,
             val tittel: String,
