@@ -1,6 +1,7 @@
 package no.nav.tms.soknadskvittering.builder
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import no.nav.tms.soknad.event.SoknadEvent
@@ -147,6 +148,58 @@ class SoknadOpprettetBuilderTest {
                 linkSoknad = "https://link.til.soknad"
                 journalpostId = "123456"
             }
+        }
+    }
+
+    @Test
+    fun `feiler hvis påkrevde felt er null`() {
+
+        val validInstance = SoknadEventBuilder.SoknadOpprettetInstance().apply {
+            soknadsId = UUID.randomUUID().toString()
+            ident = "12345678910"
+            tittel = "Soknadstittel"
+            temakode = "TEM"
+            skjemanummer = "Skjema-123"
+            tidspunktMottatt = ZonedDateTime.parse("2025-02-01T10:00:00Z")
+            fristEttersending = LocalDate.parse("2025-03-01")
+            linkSoknad = "https://link.til.soknad"
+            journalpostId = "123456"
+            produsent = Produsent("cluster", "namespace", "app")
+        }
+
+        shouldNotThrowAny {
+            SoknadEventBuilder.opprettet(validInstance) {
+                linkSoknad = null
+                journalpostId = null
+            }
+        }
+
+        shouldThrow<SoknadsKvitteringValidationException> {
+            SoknadEventBuilder.opprettet(validInstance) { soknadsId = null }
+        }
+
+        shouldThrow<SoknadsKvitteringValidationException> {
+            SoknadEventBuilder.opprettet(validInstance) { ident = null }
+        }
+
+        shouldThrow<SoknadsKvitteringValidationException> {
+            SoknadEventBuilder.opprettet(validInstance) { tittel = null }
+        }
+
+        shouldThrow<SoknadsKvitteringValidationException> {
+            SoknadEventBuilder.opprettet(validInstance) { temakode = null }
+        }
+
+        shouldThrow<SoknadsKvitteringValidationException> {
+            SoknadEventBuilder.opprettet(validInstance) { skjemanummer = null }
+        }
+
+        shouldThrow<SoknadsKvitteringValidationException> {
+            SoknadEventBuilder.opprettet(validInstance) { tidspunktMottatt = null }
+        }
+
+        shouldThrow<SoknadsKvitteringValidationException> {
+            SoknadEventBuilder.opprettet(validInstance) { fristEttersending = null }
         }
     }
 }

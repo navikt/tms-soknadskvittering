@@ -20,50 +20,65 @@ object SoknadEventBuilder {
         .setSerializationInclusion(JsonInclude.Include.NON_NULL)
 
     fun opprettet(builderFunction: SoknadOpprettetInstance.() -> Unit): String {
-        val builder = SoknadOpprettetInstance()
-            .also { it.builderFunction() }
-            .also { it.performNullCheck() }
+        return opprettet(SoknadOpprettetInstance(), builderFunction)
+    }
 
-        return builder.build()
+    internal fun opprettet(instance: SoknadOpprettetInstance, builderFunction: SoknadOpprettetInstance.() -> Unit): String {
+        instance.builderFunction()
+        instance.performNullCheck()
+
+        return instance.build()
             .also { SoknadOpprettetValidation.validate(it) }
             .let { objectMapper.writeValueAsString(it) }
     }
 
     fun oppdatert(builderFunction: SoknadOppdatertInstance.() -> Unit): String {
-        val builder = SoknadOppdatertInstance()
-            .also { it.builderFunction() }
-            .also { it.performNullCheck() }
+        return oppdatert(SoknadOppdatertInstance(), builderFunction)
+    }
 
-        return builder.build()
+    internal fun oppdatert(instance: SoknadOppdatertInstance, builderFunction: SoknadOppdatertInstance.() -> Unit): String {
+        instance.builderFunction()
+        instance.performNullCheck()
+
+        return instance.build()
             .also { SoknadOppdatertValidation.validate(it) }
             .let { objectMapper.writeValueAsString(it) }
     }
 
     fun ferdigstilt(builderFunction: SoknadFerdigstiltInstance.() -> Unit): String {
-        val builder = SoknadFerdigstiltInstance()
-            .also { it.builderFunction() }
-            .also { it.performNullCheck() }
+        return ferdigstilt(SoknadFerdigstiltInstance(), builderFunction)
+    }
 
-        return builder.build()
+    internal fun ferdigstilt(instance: SoknadFerdigstiltInstance, builderFunction: SoknadFerdigstiltInstance.() -> Unit): String {
+        instance.builderFunction()
+        instance.performNullCheck()
+
+        return instance.build()
             .let { objectMapper.writeValueAsString(it) }
     }
 
     fun vedleggEtterspurt(builderFunction: VedleggEtterspurtInstance.() -> Unit): String {
-        val builder = VedleggEtterspurtInstance()
-            .also { it.builderFunction() }
-            .also { it.performNullCheck() }
+        return vedleggEtterspurt(VedleggEtterspurtInstance(), builderFunction)
+    }
 
-        return builder.build()
+    internal fun vedleggEtterspurt(instance: VedleggEtterspurtInstance, builderFunction: VedleggEtterspurtInstance.() -> Unit): String {
+        instance.builderFunction()
+        instance.performNullCheck()
+
+        return instance.build()
             .also { VedleggEtterspurtValidation.validate(it) }
             .let { objectMapper.writeValueAsString(it) }
     }
 
     fun vedleggMottatt(builderFunction: VedleggMottattInstance.() -> Unit): String {
-        val builder = VedleggMottattInstance()
-            .also { it.builderFunction() }
-            .also { it.performNullCheck() }
+        return vedleggMottatt(VedleggMottattInstance(), builderFunction)
+    }
 
-        return builder.build()
+    internal fun vedleggMottatt(instance: VedleggMottattInstance, builderFunction: VedleggMottattInstance.() -> Unit): String {
+        instance.builderFunction()
+        instance.performNullCheck()
+
+        return instance.build()
             .also { VedleggMottattValidation.validate(it) }
             .let { objectMapper.writeValueAsString(it) }
     }
@@ -118,7 +133,7 @@ object SoknadEventBuilder {
                 requireNotNull(skjemanummer) { "skjemanummer kan ikke være null" }
                 requireNotNull(tidspunktMottatt) { "tidspunktMottatt kan ikke være null" }
                 requireNotNull(fristEttersending) { "fristEttersending kan ikke være null" }
-                requireNotNull(produsent) { "produsent kan ikke være null" }
+                requireNotNull(produsent) { "produsent må spesifiseres manuelt hvis det ikke kan utledes fra env" }
 
                 mottatteVedlegg.forEachIndexed { index, vedlegg -> vedlegg.performNullCheck(index) }
                 etterspurteVedlegg.forEachIndexed { index, vedlegg -> vedlegg.performNullCheck(index) }
