@@ -1,9 +1,9 @@
-package no.nav.tms.soknadskvittering.subscribers
+package no.nav.tms.soknadskvittering.aggregation
 
 import kotliquery.queryOf
-import no.nav.tms.soknadskvittering.EtterspurtVedlegg
-import no.nav.tms.soknadskvittering.SoknadsKvittering
-import no.nav.tms.soknadskvittering.MottattVedlegg
+import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.EtterspurtVedlegg
+import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.SoknadsKvittering
+import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.MottattVedlegg
 import no.nav.tms.soknadskvittering.setup.*
 import java.time.LocalDate
 

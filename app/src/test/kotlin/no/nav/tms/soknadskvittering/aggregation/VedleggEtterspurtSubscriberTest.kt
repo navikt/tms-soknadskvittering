@@ -1,11 +1,9 @@
-package no.nav.tms.soknadskvittering.subscribers
+package no.nav.tms.soknadskvittering.aggregation
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import no.nav.tms.kafka.application.MessageBroadcaster
-import no.nav.tms.kafka.application.MessageException
 import no.nav.tms.soknadskvittering.common.LocalPostgresDatabase
 import no.nav.tms.soknadskvittering.common.shouldBeSameTimeAs
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper.nowAtUtc

@@ -1,4 +1,4 @@
-package no.nav.tms.soknadskvittering.subscribers
+package no.nav.tms.soknadskvittering.aggregation
 
 import com.fasterxml.jackson.module.kotlin.treeToValue
 import io.github.oshai.kotlinlogging.KotlinLogging

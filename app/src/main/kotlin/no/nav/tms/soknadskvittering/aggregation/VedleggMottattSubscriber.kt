@@ -1,4 +1,4 @@
-package no.nav.tms.soknadskvittering.subscribers
+package no.nav.tms.soknadskvittering.aggregation
 
 import com.fasterxml.jackson.module.kotlin.treeToValue
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -6,9 +6,8 @@ import no.nav.tms.kafka.application.JsonMessage
 import no.nav.tms.kafka.application.Subscriber
 import no.nav.tms.kafka.application.Subscription
 import no.nav.tms.soknad.event.SoknadEvent
-import no.nav.tms.soknadskvittering.SoknadsKvittering
-import no.nav.tms.soknadskvittering.MottattVedlegg
-import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper.asZonedDateTime
+import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.MottattVedlegg
+import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.SoknadsKvittering
 import no.nav.tms.soknadskvittering.setup.defaultObjectMapper
 import no.nav.tms.soknadskvittering.setup.withMDC
 
@@ -61,6 +60,7 @@ class VedleggMottattSubscriber(private val repository: SoknadsKvitteringReposito
         mottattEvent: SoknadEvent.VedleggMottatt
     ) {
         val mottatteVedlegg = soknadsKvittering.mottatteVedlegg + MottattVedlegg(
+            erEttersending = true,
             vedleggsId = mottattEvent.vedleggsId,
             brukerErAvsender = mottattEvent.brukerErAvsender,
             tittel = mottattEvent.tittel,
@@ -79,6 +79,7 @@ class VedleggMottattSubscriber(private val repository: SoknadsKvitteringReposito
 
     private fun nyttVedlegg(soknadsKvittering: SoknadsKvittering, mottattEvent: SoknadEvent.VedleggMottatt) {
         MottattVedlegg(
+            erEttersending = true,
             vedleggsId = mottattEvent.vedleggsId,
             brukerErAvsender = mottattEvent.brukerErAvsender,
             tittel = mottattEvent.tittel,

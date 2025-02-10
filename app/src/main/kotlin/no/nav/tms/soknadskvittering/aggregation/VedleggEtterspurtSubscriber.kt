@@ -1,15 +1,13 @@
-package no.nav.tms.soknadskvittering.subscribers
+package no.nav.tms.soknadskvittering.aggregation
 
 import com.fasterxml.jackson.module.kotlin.treeToValue
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.tms.kafka.application.JsonMessage
-import no.nav.tms.kafka.application.MessageException
 import no.nav.tms.kafka.application.Subscriber
 import no.nav.tms.kafka.application.Subscription
 import no.nav.tms.soknad.event.SoknadEvent
-import no.nav.tms.soknadskvittering.EtterspurtVedlegg
-import no.nav.tms.soknadskvittering.SoknadsKvittering
-import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper.asZonedDateTime
+import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.EtterspurtVedlegg
+import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.SoknadsKvittering
 import no.nav.tms.soknadskvittering.setup.defaultObjectMapper
 import no.nav.tms.soknadskvittering.setup.withMDC
 

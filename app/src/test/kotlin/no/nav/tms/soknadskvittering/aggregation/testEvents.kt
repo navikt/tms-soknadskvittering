@@ -1,6 +1,5 @@
-package no.nav.tms.soknadskvittering.subscribers
+package no.nav.tms.soknadskvittering.aggregation
 
-import com.github.dockerjava.zerodep.shaded.org.apache.hc.client5.http.entity.mime.StringBody
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper.nowAtUtc
 import java.time.LocalDate
 import java.time.ZonedDateTime

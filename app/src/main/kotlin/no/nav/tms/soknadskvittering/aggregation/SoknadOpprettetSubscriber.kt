@@ -1,13 +1,13 @@
-package no.nav.tms.soknadskvittering.subscribers
+package no.nav.tms.soknadskvittering.aggregation
 
 import com.fasterxml.jackson.module.kotlin.treeToValue
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.tms.kafka.application.*
 import no.nav.tms.soknad.event.SoknadEvent
-import no.nav.tms.soknadskvittering.EtterspurtVedlegg
-import no.nav.tms.soknadskvittering.SoknadsKvittering
-import no.nav.tms.soknadskvittering.MottattVedlegg
-import no.nav.tms.soknadskvittering.Produsent
+import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.SoknadsKvittering
+import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.MottattVedlegg
+import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.Produsent
+import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.EtterspurtVedlegg
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper
 import no.nav.tms.soknadskvittering.setup.defaultObjectMapper
 import no.nav.tms.soknadskvittering.setup.withMDC
@@ -42,6 +42,7 @@ class SoknadOpprettetSubscriber(private val repository: SoknadsKvitteringReposit
 
         val mottatteVedlegg = opprettetEvent.mottatteVedlegg.map {
             MottattVedlegg(
+                erEttersending = false,
                 vedleggsId = it.vedleggsId,
                 tittel = it.tittel,
                 linkVedlegg = it.linkVedlegg,

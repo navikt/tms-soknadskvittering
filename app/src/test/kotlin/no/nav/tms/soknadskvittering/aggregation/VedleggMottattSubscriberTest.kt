@@ -1,4 +1,4 @@
-package no.nav.tms.soknadskvittering.subscribers
+package no.nav.tms.soknadskvittering.aggregation
 
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf

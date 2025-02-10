@@ -28,6 +28,7 @@ dependencies {
     implementation(Flyway.postgres)
     implementation(Hikari.cp)
     implementation(KotlinLogging.logging)
+    implementation(Ktor.Server.auth)
     implementation(Ktor.Server.core)
     implementation(Ktor.Server.netty)
     implementation(Ktor.Server.metricsMicrometer)

@@ -1,8 +1,7 @@
-package no.nav.tms.soknadskvittering.subscribers
+package no.nav.tms.soknadskvittering.aggregation
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.tms.kafka.application.JsonMessage
-import no.nav.tms.kafka.application.MessageException
 import no.nav.tms.kafka.application.Subscriber
 import no.nav.tms.kafka.application.Subscription
 import no.nav.tms.soknadskvittering.setup.withMDC
@@ -27,5 +26,4 @@ class SoknadFerdigstiltSubscriber(private val repository: SoknadsKvitteringRepos
             }
         }
     }
-
 }

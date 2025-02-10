@@ -20,11 +20,8 @@ jobs:
           java-version: 21
           distribution: 'temurin'
 
-      - name: Sett opp gradle
-        uses: gradle/actions/setup-gradle@v3
-
       - name: Bygg bibliotek
-        run:  ./gradlew :lib:build
+        run:  ./gradlew build -x :app:build
 
       - name: Publish packages
         run: ./gradlew -Plib_version="$LIB_VERSION" publish
