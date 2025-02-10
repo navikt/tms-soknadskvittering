@@ -20,9 +20,9 @@ object SoknadEvent {
         val mottatteVedlegg: List<Dto.MottattVedlegg>,
         val etterspurteVedlegg: List<Dto.EtterspurtVedlegg>,
         val produsent: Dto.Produsent,
-        val metadata: Map<String, Any>
+        val metadata: Map<String, Any>?
     ) {
-        @JsonProperty("@event_name") val eventName = "soknad_opprettet"
+        @JsonProperty("@event_name") val eventName = "soknadOpprettet"
     }
 
     data class SoknadOppdatert(
@@ -31,17 +31,17 @@ object SoknadEvent {
         val linkSoknad: String?,
         val journalpostId: String?,
         val produsent: Dto.Produsent,
-        val metadata: Map<String, Any>
+        val metadata: Map<String, Any>?
     ) {
-        @JsonProperty("@event_name") val eventName = "soknad_oppdatert"
+        @JsonProperty("@event_name") val eventName = "soknadOppdatert"
     }
 
     data class SoknadFerdigstilt(
         val soknadsId: String,
         val produsent: Dto.Produsent,
-        val metadata: Map<String, Any>
+        val metadata: Map<String, Any>?
     ) {
-        @JsonProperty("@event_name") val eventName = "soknad_ferdigstilt"
+        @JsonProperty("@event_name") val eventName = "soknadFerdigstilt"
     }
 
     data class VedleggEtterspurt(
@@ -53,9 +53,9 @@ object SoknadEvent {
         val beskrivelse: String?,
         val tidspunktEtterspurt: ZonedDateTime,
         val produsent: Dto.Produsent,
-        val metadata: Map<String, Any>
+        val metadata: Map<String, Any>?
     ) {
-        @JsonProperty("@event_name") val eventName = "vedlegg_etterspurt"
+        @JsonProperty("@event_name") val eventName = "vedleggEtterspurt"
     }
 
     data class VedleggMottatt(
@@ -66,9 +66,9 @@ object SoknadEvent {
         val brukerErAvsender: Boolean,
         val tidspunktMottatt: ZonedDateTime,
         val produsent: Dto.Produsent,
-        val metadata: Map<String, Any>
+        val metadata: Map<String, Any>?
     ) {
-        @JsonProperty("@event_name") val eventName = "vedlegg_mottatt"
+        @JsonProperty("@event_name") val eventName = "vedleggMottatt"
     }
 
     object Dto {

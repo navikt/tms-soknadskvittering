@@ -57,11 +57,30 @@ object SoknadEventBuilder {
             .let { objectMapper.writeValueAsString(it) }
     }
 
-    fun vedleggEtterspurt(builderFunction: VedleggEtterspurtInstance.() -> Unit): String {
-        return vedleggEtterspurt(VedleggEtterspurtInstance(), builderFunction)
+    fun vedleggEtterspurtBruker(builderFunction: VedleggEtterspurtBrukerInstance.() -> Unit): String {
+        return vedleggEtterspurtBruker(VedleggEtterspurtBrukerInstance(), builderFunction)
     }
 
-    internal fun vedleggEtterspurt(instance: VedleggEtterspurtInstance, builderFunction: VedleggEtterspurtInstance.() -> Unit): String {
+    internal fun vedleggEtterspurtBruker(
+        instance: VedleggEtterspurtBrukerInstance,
+        builderFunction: VedleggEtterspurtBrukerInstance.() -> Unit
+    ): String {
+        instance.builderFunction()
+        instance.performNullCheck()
+
+        return instance.build()
+            .also { VedleggEtterspurtValidation.validate(it) }
+            .let { objectMapper.writeValueAsString(it) }
+    }
+
+    fun vedleggEtterspurtTredjepart(builderFunction: VedleggEtterspurtTredjepartInstance.() -> Unit): String {
+        return vedleggEtterspurtTredjepart(VedleggEtterspurtTredjepartInstance(), builderFunction)
+    }
+
+    internal fun vedleggEtterspurtTredjepart(
+        instance: VedleggEtterspurtTredjepartInstance,
+        builderFunction: VedleggEtterspurtTredjepartInstance.() -> Unit
+    ): String {
         instance.builderFunction()
         instance.performNullCheck()
 
@@ -196,7 +215,7 @@ object SoknadEventBuilder {
         var fristEttersending: LocalDate? = null
         var linkSoknad: String? = null
         var journalpostId: String? = null
-        var produsent: Produsent? = null
+        var produsent: Produsent? = produsent()
 
         var metadata: Map<String, Any> = metadata()
 
@@ -237,12 +256,44 @@ object SoknadEventBuilder {
         }
     }
 
-    class VedleggEtterspurtInstance internal constructor() {
+    class VedleggEtterspurtBrukerInstance internal constructor() {
         var soknadsId: String? = null
         var vedleggsId: String? = null
-        var brukerErAvsender: Boolean? = null
         var tittel: String? = null
         var linkEttersending: String? = null
+        var tidspunktEtterspurt: ZonedDateTime? = null
+        var produsent: Produsent? = produsent()
+
+        val metadata = metadata()
+
+        internal fun build() = SoknadEvent.VedleggEtterspurt(
+            brukerErAvsender = true,
+            soknadsId = soknadsId!!,
+            vedleggsId = vedleggsId!!,
+            tittel = tittel!!,
+            linkEttersending = linkEttersending!!,
+            beskrivelse = null,
+            tidspunktEtterspurt = tidspunktEtterspurt!!,
+            produsent = produsent!!,
+            metadata = metadata,
+        )
+
+        internal fun performNullCheck() = try {
+            requireNotNull(soknadsId) { "soknadsId kan ikke være null" }
+            requireNotNull(vedleggsId) { "vedleggsId kan ikke være null" }
+            requireNotNull(tittel) { "tittel kan ikke være null" }
+            requireNotNull(linkEttersending) { "linkEttersending kan ikke være null" }
+            requireNotNull(tidspunktEtterspurt) { "tidspunktEtterspurt kan ikke være null" }
+            requireNotNull(produsent) { "produsent må spesifiseres manuelt hvis det ikke kan utledes fra env" }
+        } catch (e: IllegalArgumentException) {
+            throw SoknadsKvitteringValidationException(e.message!!)
+        }
+    }
+
+    class VedleggEtterspurtTredjepartInstance internal constructor() {
+        var soknadsId: String? = null
+        var vedleggsId: String? = null
+        var tittel: String? = null
         var beskrivelse: String? = null
         var tidspunktEtterspurt: ZonedDateTime? = null
         var produsent: Produsent? = produsent()
@@ -250,11 +301,11 @@ object SoknadEventBuilder {
         val metadata = metadata()
 
         internal fun build() = SoknadEvent.VedleggEtterspurt(
+            brukerErAvsender = false,
             soknadsId = soknadsId!!,
             vedleggsId = vedleggsId!!,
-            brukerErAvsender = brukerErAvsender!!,
             tittel = tittel!!,
-            linkEttersending = linkEttersending,
+            linkEttersending = null,
             beskrivelse = beskrivelse,
             tidspunktEtterspurt = tidspunktEtterspurt!!,
             produsent = produsent!!,
@@ -264,7 +315,6 @@ object SoknadEventBuilder {
         internal fun performNullCheck() = try {
             requireNotNull(soknadsId) { "soknadsId kan ikke være null" }
             requireNotNull(vedleggsId) { "vedleggsId kan ikke være null" }
-            requireNotNull(brukerErAvsender) { "brukerErAvsender kan ikke være null" }
             requireNotNull(tittel) { "tittel kan ikke være null" }
             requireNotNull(tidspunktEtterspurt) { "tidspunktEtterspurt kan ikke være null" }
             requireNotNull(produsent) { "produsent må spesifiseres manuelt hvis det ikke kan utledes fra env" }

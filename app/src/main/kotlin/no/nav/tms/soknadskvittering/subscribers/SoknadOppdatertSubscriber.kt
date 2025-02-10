@@ -11,12 +11,13 @@ import no.nav.tms.soknadskvittering.setup.withMDC
 
 class SoknadOppdatertSubscriber(private val repository: SoknadsKvitteringRepository): Subscriber() {
 
-    override fun subscribe() = Subscription.forEvent("soknad_oppdatert")
-        .withFields("soknadsId")
+    override fun subscribe() = Subscription.forEvent("soknadOppdatert")
+        .withFields("soknadsId", "produsent")
         .withOptionalFields(
             "fristEttersending",
             "linkSoknad",
-            "journalpostId"
+            "journalpostId",
+            "metadata"
         )
 
     private val log = KotlinLogging.logger {}

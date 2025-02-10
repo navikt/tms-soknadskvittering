@@ -15,17 +15,19 @@ import no.nav.tms.soknadskvittering.setup.withMDC
 
 class VedleggEtterspurtSubscriber(private val repository: SoknadsKvitteringRepository): Subscriber() {
 
-    override fun subscribe() = Subscription.forEvent("vedlegg_etterspurt")
+    override fun subscribe() = Subscription.forEvent("vedleggEtterspurt")
         .withFields(
             "soknadsId",
             "vedleggsId",
             "brukerErAvsender",
             "tittel",
-            "tidspunktEtterspurt"
+            "tidspunktEtterspurt",
+            "produsent"
         )
         .withOptionalFields(
             "linkEttersending",
-            "beskrivelse"
+            "beskrivelse",
+            "metadata"
         )
 
     private val log = KotlinLogging.logger {}

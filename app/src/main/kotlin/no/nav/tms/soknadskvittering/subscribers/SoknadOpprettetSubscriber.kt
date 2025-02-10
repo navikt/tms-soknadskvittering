@@ -7,13 +7,14 @@ import no.nav.tms.soknad.event.SoknadEvent
 import no.nav.tms.soknadskvittering.EtterspurtVedlegg
 import no.nav.tms.soknadskvittering.SoknadsKvittering
 import no.nav.tms.soknadskvittering.MottattVedlegg
+import no.nav.tms.soknadskvittering.Produsent
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper
 import no.nav.tms.soknadskvittering.setup.defaultObjectMapper
 import no.nav.tms.soknadskvittering.setup.withMDC
 
 class SoknadOpprettetSubscriber(private val repository: SoknadsKvitteringRepository): Subscriber() {
 
-    override fun subscribe() = Subscription.forEvent("soknad_opprettet")
+    override fun subscribe() = Subscription.forEvent("soknadOpprettet")
         .withFields(
             "soknadsId",
             "ident",
@@ -23,11 +24,13 @@ class SoknadOpprettetSubscriber(private val repository: SoknadsKvitteringReposit
             "tidspunktMottatt",
             "fristEttersending",
             "mottatteVedlegg",
-            "etterspurteVedlegg"
+            "etterspurteVedlegg",
+            "produsent"
         )
         .withOptionalFields(
             "linkSoknad",
-            "journalpostId"
+            "journalpostId",
+            "metadata"
         )
 
     private val log = KotlinLogging.logger {}
@@ -71,6 +74,11 @@ class SoknadOpprettetSubscriber(private val repository: SoknadsKvitteringReposit
             journalpostId = opprettetEvent.journalpostId,
             mottatteVedlegg = mottatteVedlegg,
             etterspurteVedlegg = etterspurteVedlegg,
+            produsent = Produsent(
+                cluster = opprettetEvent.produsent.cluster,
+                namespace = opprettetEvent.produsent.namespace,
+                appnavn = opprettetEvent.produsent.appnavn
+            ),
             opprettet = ZonedDateTimeHelper.nowAtUtc(),
             ferdigstilt = null
         )

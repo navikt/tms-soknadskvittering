@@ -4,8 +4,12 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import no.nav.tms.soknad.event.SoknadEvent
 import no.nav.tms.soknad.event.SoknadEvent.Dto.Produsent
+import no.nav.tms.soknad.event.validation.SoknadOpprettetValidation
 import no.nav.tms.soknad.event.validation.SoknadsKvitteringValidationException
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -20,6 +24,7 @@ class SoknadOpprettetBuilderTest {
     @AfterEach
     fun cleanUp() {
         BuilderEnvironment.reset()
+        unmockkObject(SoknadOpprettetValidation)
     }
 
     @Test
@@ -60,6 +65,7 @@ class SoknadOpprettetBuilderTest {
         }
 
         objectMapper.readTree(soknadOpprettet).let { json ->
+            json["@event_name"].asText() shouldBe "soknadOpprettet"
             json["soknadsId"].asText() shouldBe testSoknadsId
             json["ident"].asText() shouldBe "12345678910"
             json["tittel"].asText() shouldBe "Soknadstittel"
@@ -104,7 +110,7 @@ class SoknadOpprettetBuilderTest {
     }
 
     @Test
-    fun `henter info om produsent automatisk for opprett-action der det er mulig`() {
+    fun `henter info om produsent automatisk der det er mulig`() {
         mapOf(
             "NAIS_APP_NAME" to "test-app",
             "NAIS_NAMESPACE" to "test-namespace",
@@ -200,6 +206,31 @@ class SoknadOpprettetBuilderTest {
 
         shouldThrow<SoknadsKvitteringValidationException> {
             SoknadEventBuilder.opprettet(validInstance) { fristEttersending = null }
+        }
+    }
+
+    @Test
+    fun `feiler hvis eventet ikke er gyldig`() {
+
+        val validInstance = SoknadEventBuilder.SoknadOpprettetInstance().apply {
+            soknadsId = UUID.randomUUID().toString()
+            ident = "12345678910"
+            tittel = "Soknadstittel"
+            temakode = "TEM"
+            skjemanummer = "Skjema-123"
+            tidspunktMottatt = ZonedDateTime.parse("2025-02-01T10:00:00Z")
+            fristEttersending = LocalDate.parse("2025-03-01")
+            linkSoknad = "https://link.til.soknad"
+            journalpostId = "123456"
+            produsent = Produsent("cluster", "namespace", "app")
+        }
+
+        mockkObject(SoknadOpprettetValidation)
+
+        every { SoknadOpprettetValidation.validate(any()) } throws SoknadsKvitteringValidationException("")
+
+        shouldThrow<SoknadsKvitteringValidationException> {
+            SoknadEventBuilder.opprettet(validInstance) {}
         }
     }
 }

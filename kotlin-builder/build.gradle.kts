@@ -27,6 +27,7 @@ dependencies {
     testImplementation(JunitJupiter.engine)
     testImplementation(Kotest.runnerJunit5)
     testImplementation(Kotest.assertionsCore)
+    testImplementation(Mockk.mockk)
 }
 
 tasks {

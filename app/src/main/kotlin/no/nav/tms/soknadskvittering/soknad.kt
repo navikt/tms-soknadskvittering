@@ -15,8 +15,9 @@ data class SoknadsKvittering(
     val journalpostId: String?,
     val mottatteVedlegg: List<MottattVedlegg>,
     val etterspurteVedlegg: List<EtterspurtVedlegg>,
+    val produsent: Produsent,
     val opprettet: ZonedDateTime,
-    val ferdigstilt: ZonedDateTime?,
+    val ferdigstilt: ZonedDateTime?
 )
 
 data class MottattVedlegg(
@@ -35,4 +36,10 @@ data class EtterspurtVedlegg(
     val beskrivelse: String?,
     val tidspunktEtterspurt: ZonedDateTime,
     val erMottatt: Boolean
+)
+
+data class Produsent(
+    val cluster: String,
+    val namespace: String,
+    val appnavn: String
 )

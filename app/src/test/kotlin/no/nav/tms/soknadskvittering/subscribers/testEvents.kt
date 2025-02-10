@@ -17,9 +17,11 @@ fun opprettetEvent(
     journalpostId: String? = "journalpostId",
     mottatteVedlegg: List<String> = emptyList(),
     etterspurteVedlegg: List<String> = emptyList(),
+    produsent: String = produsentJson(),
+    metadata: String? = null
 ) = """
 {
-    "@event_name": "soknad_opprettet",
+    "@event_name": "soknadOpprettet",
     "soknadsId": "$soknadsId",
     "ident": "$ident",
     "tittel": "$tittel",
@@ -30,7 +32,9 @@ fun opprettetEvent(
     "linkSoknad": ${linkSoknad.asJson()},
     "journalpostId": ${journalpostId.asJson()},
     "mottatteVedlegg": ${mottatteVedlegg.joinToString(prefix = "[", postfix = "]")},
-    "etterspurteVedlegg": ${etterspurteVedlegg.joinToString(prefix = "[", postfix = "]")}
+    "etterspurteVedlegg": ${etterspurteVedlegg.joinToString(prefix = "[", postfix = "]")},
+    "produsent": $produsent,
+    "metadata": ${metadata.asJson()}
 } 
 """
 
@@ -38,23 +42,31 @@ fun oppdatertEvent(
     soknadsId: String,
     fristEttersending: LocalDate? = null,
     linkSoknad: String? = null,
-    journalpostId: String? = null
+    journalpostId: String? = null,
+    produsent: String = produsentJson(),
+    metadata: String? = null
 ) = """
 {
-    "@event_name": "soknad_oppdatert",
+    "@event_name": "soknadOppdatert",
     "soknadsId": "$soknadsId",
     "fristEttersending": ${fristEttersending?.toString().asJson()}, 
     "linkSoknad": ${linkSoknad.asJson()}, 
-    "journalpostId": ${journalpostId.asJson()} 
+    "journalpostId": ${journalpostId.asJson()},
+    "produsent": $produsent,
+    "metadata": ${metadata.asJson()}
 }
 """
 
 fun ferdigstiltEvent(
-    soknadsId: String
+    soknadsId: String,
+    produsent: String = produsentJson(),
+    metadata: String? = null
 ) = """
 {
-    "@event_name": "soknad_ferdigstilt",
-    "soknadsId": "$soknadsId"
+    "@event_name": "soknadFerdigstilt",
+    "soknadsId": "$soknadsId",
+    "produsent": $produsent,
+    "metadata": ${metadata.asJson()}
 }
 """
 
@@ -65,17 +77,21 @@ fun vedleggEtterspurtEvent(
     tittel: String = "tittel",
     linkEttersending: String? = "https://link.til.ettersending",
     beskrivelse: String? = null,
-    tidspunktEtterspurt: ZonedDateTime = nowAtUtc()
+    tidspunktEtterspurt: ZonedDateTime = nowAtUtc(),
+    produsent: String = produsentJson(),
+    metadata: String? = null
 ) = """
 {
-    "@event_name": "vedlegg_etterspurt",
+    "@event_name": "vedleggEtterspurt",
     "soknadsId": "$soknadsId",
     "vedleggsId": "$vedleggsId",
     "brukerErAvsender": $brukerErAvsender,
     "tittel": "$tittel",
     "linkEttersending": ${linkEttersending.asJson()},
     "beskrivelse": ${beskrivelse.asJson()},
-    "tidspunktEtterspurt": "$tidspunktEtterspurt"
+    "tidspunktEtterspurt": "$tidspunktEtterspurt",
+    "produsent": $produsent,
+    "metadata": ${metadata.asJson()}
 }
 """
 
@@ -85,16 +101,20 @@ fun vedleggMottattEvent(
     tittel: String = "tittel",
     brukerErAvsender: Boolean = true,
     linkVedlegg: String? = "https://link.til.vedlegg",
-    tidspunktMottatt: ZonedDateTime = nowAtUtc()
+    tidspunktMottatt: ZonedDateTime = nowAtUtc(),
+    produsent: String = produsentJson(),
+    metadata: String? = null
 ) = """
 {
-    "@event_name": "vedlegg_mottatt",
+    "@event_name": "vedleggMottatt",
     "soknadsId": "$soknadsId",
     "vedleggsId": "$vedleggsId",
     "brukerErAvsender": $brukerErAvsender,
     "tittel": "$tittel",
     "linkVedlegg": ${linkVedlegg.asJson()},
-    "tidspunktMottatt": "$tidspunktMottatt"
+    "tidspunktMottatt": "$tidspunktMottatt",
+    "produsent": $produsent,
+    "metadata": ${metadata.asJson()}
 }
 """
 
@@ -135,3 +155,16 @@ fun etterspurtVedleggJson(
     "linkEttersending": ${linkEttersending.asJson()}
 } 
     """
+
+fun produsentJson(
+    cluster: String = "cluster",
+    namespace: String = "namespace",
+    appnavn: String = "appnavn"
+) = """
+{
+    "cluster": "$cluster",
+    "namespace": "$namespace",
+    "appnavn": "$appnavn"
+}
+"""
+

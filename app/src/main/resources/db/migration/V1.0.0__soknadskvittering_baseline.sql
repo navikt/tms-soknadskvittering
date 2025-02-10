@@ -17,4 +17,4 @@ create table soknadskvittering(
 );
 
 create index soknad_ident on soknadskvittering(ident);
-create index soknad_opprettet on soknadskvittering(opprettet);
+create index soknadOpprettet on soknadskvittering(opprettet);

@@ -27,6 +27,7 @@ class SoknadsKvitteringRepository(private val database: Database) {
                         journalpostId,
                         mottatteVedlegg,
                         etterspurteVedlegg,
+                        produsent,
                         opprettet,
                         ferdigstilt
                     ) values (
@@ -41,6 +42,7 @@ class SoknadsKvitteringRepository(private val database: Database) {
                         :journalpostId,
                         :mottatteVedlegg,
                         :etterspurteVedlegg,
+                        :produsent,
                         :opprettet,
                         :ferdigstilt
                     ) on conflict do nothing
@@ -56,6 +58,7 @@ class SoknadsKvitteringRepository(private val database: Database) {
                     "journalpostId" to soknadsKvittering.journalpostId,
                     "mottatteVedlegg" to soknadsKvittering.mottatteVedlegg.toJsonb(objectMapper),
                     "etterspurteVedlegg" to soknadsKvittering.etterspurteVedlegg.toJsonb(objectMapper),
+                    "produsent" to soknadsKvittering.produsent.toJsonb(objectMapper),
                     "opprettet" to soknadsKvittering.opprettet,
                     "ferdigstilt" to soknadsKvittering.ferdigstilt
                 )
@@ -103,6 +106,7 @@ class SoknadsKvitteringRepository(private val database: Database) {
                     journalpostId,
                     mottatteVedlegg,
                     etterspurteVedlegg,
+                    produsent,
                     opprettet,
                     ferdigstilt
                 from 
@@ -124,6 +128,7 @@ class SoknadsKvitteringRepository(private val database: Database) {
                     journalpostId = it.stringOrNull("journalpostId"),
                     mottatteVedlegg = it.json("mottatteVedlegg", objectMapper),
                     etterspurteVedlegg = it.json("etterspurteVedlegg", objectMapper),
+                    produsent = it.json("produsent", objectMapper),
                     opprettet = it.zonedDateTime("opprettet"),
                     ferdigstilt = it.zonedDateTimeOrNull("ferdigstilt")
                 )
@@ -146,6 +151,7 @@ class SoknadsKvitteringRepository(private val database: Database) {
                     journalpostId,
                     mottatteVedlegg,
                     etterspurteVedlegg,
+                    produsent,
                     opprettet,
                     ferdigstilt
                 from 
@@ -167,6 +173,7 @@ class SoknadsKvitteringRepository(private val database: Database) {
                     journalpostId = it.stringOrNull("journalpostId"),
                     mottatteVedlegg = it.json("mottatteVedlegg", objectMapper),
                     etterspurteVedlegg = it.json("etterspurteVedlegg", objectMapper),
+                    produsent = it.json("produsent", objectMapper),
                     opprettet = it.zonedDateTime("opprettet"),
                     ferdigstilt = it.zonedDateTimeOrNull("ferdigstilt")
                 )
