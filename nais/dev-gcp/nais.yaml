@@ -51,7 +51,7 @@ spec:
       cpu: "20m"
       memory: 128Mi
   env:
-    - name: GROUP_ID
+    - name: KAFKA_GROUP_ID
       value: tms-soknadskvittering-01
     - name: KAFKA_TOPIC
       value: min-side.aapen-soknadskvittering-v1
