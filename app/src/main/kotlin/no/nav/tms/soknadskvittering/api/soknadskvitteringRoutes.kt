@@ -5,7 +5,6 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.tms.soknadskvittering.aggregation.SoknadsKvitteringRepository
-import no.nav.tms.soknadskvittering.user
 import no.nav.tms.soknadskvittering.userIdent
 
 private const val soknadsIdParameter = "soknadsId"
