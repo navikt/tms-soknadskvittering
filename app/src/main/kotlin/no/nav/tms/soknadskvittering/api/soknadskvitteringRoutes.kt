@@ -34,7 +34,7 @@ fun Route.soknadskvitteringRoutes(repository: SoknadsKvitteringRepository) {
         } else if (kvittering.ident != user.ident) {
             call.respond(HttpStatusCode.Forbidden)
         } else {
-            call.respond(kvittering)
+            call.respond(ApiDto.mapSoknadsKvittering(kvittering))
         }
     }
 }
