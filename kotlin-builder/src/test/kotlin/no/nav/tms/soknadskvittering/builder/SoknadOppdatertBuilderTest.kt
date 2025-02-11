@@ -11,12 +11,10 @@ import io.mockk.unmockkObject
 import no.nav.tms.soknad.event.SoknadEvent
 import no.nav.tms.soknad.event.SoknadEvent.Dto.Produsent
 import no.nav.tms.soknad.event.validation.SoknadOppdatertValidation
-import no.nav.tms.soknad.event.validation.SoknadOpprettetValidation
-import no.nav.tms.soknad.event.validation.SoknadsKvitteringValidationException
+import no.nav.tms.soknad.event.validation.SoknadskvitteringValidationException
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import java.time.ZonedDateTime
 import java.util.UUID
 
 class SoknadOppdatertBuilderTest {
@@ -119,7 +117,7 @@ class SoknadOppdatertBuilderTest {
 
     @Test
     fun `feiler hvis produsent ikke er satt og det ikke kan hentes automatisk`() {
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.oppdatert {
                 soknadsId = UUID.randomUUID().toString()
             }
@@ -145,7 +143,7 @@ class SoknadOppdatertBuilderTest {
             }
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.oppdatert(validInstance) { soknadsId = null }
         }
     }
@@ -163,9 +161,9 @@ class SoknadOppdatertBuilderTest {
 
         mockkObject(SoknadOppdatertValidation)
 
-        every { SoknadOppdatertValidation.validate(any()) } throws SoknadsKvitteringValidationException("")
+        every { SoknadOppdatertValidation.validate(any()) } throws SoknadskvitteringValidationException("")
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.oppdatert(validInstance) {}
         }
     }

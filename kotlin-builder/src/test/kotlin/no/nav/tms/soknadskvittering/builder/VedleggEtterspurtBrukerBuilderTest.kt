@@ -8,7 +8,7 @@ import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import no.nav.tms.soknad.event.SoknadEvent
-import no.nav.tms.soknad.event.validation.SoknadsKvitteringValidationException
+import no.nav.tms.soknad.event.validation.SoknadskvitteringValidationException
 import no.nav.tms.soknad.event.validation.VedleggEtterspurtValidation
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -94,7 +94,7 @@ class VedleggEtterspurtBrukerBuilderTest {
 
     @Test
     fun `feiler hvis produsent ikke er satt og det ikke kan hentes automatisk`() {
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.vedleggEtterspurtBruker {
                 soknadsId = UUID.randomUUID().toString()
                 tittel = "Vedlegg som etterspørres"
@@ -116,23 +116,23 @@ class VedleggEtterspurtBrukerBuilderTest {
             produsent = SoknadEvent.Dto.Produsent("cluster", "namespace", "app")
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.vedleggEtterspurtBruker(validInstance) { soknadsId = null }
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.vedleggEtterspurtBruker(validInstance) { vedleggsId = null }
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.vedleggEtterspurtBruker(validInstance) { tittel = null }
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.vedleggEtterspurtBruker(validInstance) { linkEttersending = null }
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.vedleggEtterspurtBruker(validInstance) { tidspunktEtterspurt = null }
         }
     }
@@ -151,9 +151,9 @@ class VedleggEtterspurtBrukerBuilderTest {
 
         mockkObject(VedleggEtterspurtValidation)
 
-        every { VedleggEtterspurtValidation.validate(any()) } throws SoknadsKvitteringValidationException("")
+        every { VedleggEtterspurtValidation.validate(any()) } throws SoknadskvitteringValidationException("")
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.vedleggEtterspurtBruker(validInstance) {}
         }
     }

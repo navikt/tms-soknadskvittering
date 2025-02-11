@@ -15,6 +15,7 @@ import no.nav.tms.common.metrics.installTmsApiMetrics
 import no.nav.tms.common.observability.ApiMdc
 import no.nav.tms.soknadskvittering.aggregation.SoknadsKvitteringRepository
 import no.nav.tms.soknadskvittering.api.soknadskvitteringRoutes
+import no.nav.tms.token.support.tokenx.validation.TokenXPrincipal
 import no.nav.tms.token.support.tokenx.validation.tokenX
 import no.nav.tms.token.support.tokenx.validation.user.TokenXUserFactory
 import java.text.DateFormat
@@ -76,6 +77,9 @@ fun Application.soknadkvitteringModule(
         authenticate {
             soknadskvitteringRoutes(repository)
         }
+        route("/debug") {
+            soknadskvitteringRoutes(repository)
+        }
     }
 }
 
@@ -87,4 +91,8 @@ private fun installAuth(): Application.() -> Unit = {
     }
 }
 
-val RoutingContext.user get() = TokenXUserFactory.createTokenXUser(call)
+val RoutingContext.userIdent get() = if (call.principal<TokenXPrincipal>() != null) {
+    TokenXUserFactory.createTokenXUser(call).ident
+} else {
+    call.request.headers["ident"]!!
+}

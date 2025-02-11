@@ -8,7 +8,7 @@ import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import no.nav.tms.soknad.event.SoknadEvent
-import no.nav.tms.soknad.event.validation.SoknadsKvitteringValidationException
+import no.nav.tms.soknad.event.validation.SoknadskvitteringValidationException
 import no.nav.tms.soknad.event.validation.VedleggMottattValidation
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -94,7 +94,7 @@ class VedleggMottattBuilderTest {
 
     @Test
     fun `feiler hvis produsent ikke er satt og det ikke kan hentes automatisk`() {
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.vedleggMottatt {
                 soknadsId = UUID.randomUUID().toString()
                 brukerErAvsender = true
@@ -123,23 +123,23 @@ class VedleggMottattBuilderTest {
             SoknadEventBuilder.vedleggMottatt(validInstance) { linkVedlegg = null }
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.vedleggMottatt(validInstance) { soknadsId = null }
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.vedleggMottatt(validInstance) { brukerErAvsender = null }
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.vedleggMottatt(validInstance) { vedleggsId = null }
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.vedleggMottatt(validInstance) { tittel = null }
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.vedleggMottatt(validInstance) { tidspunktMottatt = null }
         }
     }
@@ -159,9 +159,9 @@ class VedleggMottattBuilderTest {
 
         mockkObject(VedleggMottattValidation)
 
-        every { VedleggMottattValidation.validate(any()) } throws SoknadsKvitteringValidationException("")
+        every { VedleggMottattValidation.validate(any()) } throws SoknadskvitteringValidationException("")
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.vedleggMottatt(validInstance) {}
         }
     }

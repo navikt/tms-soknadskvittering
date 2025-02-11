@@ -157,7 +157,7 @@ object SoknadEventBuilder {
                 mottatteVedlegg.forEachIndexed { index, vedlegg -> vedlegg.performNullCheck(index) }
                 etterspurteVedlegg.forEachIndexed { index, vedlegg -> vedlegg.performNullCheck(index) }
             } catch (e: IllegalArgumentException) {
-                throw SoknadsKvitteringValidationException(e.message!!)
+                throw SoknadskvitteringValidationException(e.message!!)
             }
         }
     }
@@ -179,7 +179,7 @@ object SoknadEventBuilder {
                 requireNotNull(tittel) { "tittel kan ikke være null" }
                 requireNotNull(linkVedlegg) { "linkVedlegg kan ikke være null" }
             } catch (e: IllegalArgumentException) {
-                throw SoknadsKvitteringValidationException("Mottatt vedlegg [$index]: ${e.message!!}")
+                throw SoknadskvitteringValidationException("Mottatt vedlegg [$index]: ${e.message!!}")
             }
         }
     }
@@ -205,7 +205,7 @@ object SoknadEventBuilder {
                 requireNotNull(brukerErAvsender) { "brukerErAvsender kan ikke være null" }
                 requireNotNull(tittel) { "tittel kan ikke være null" }
             } catch (e: IllegalArgumentException) {
-                throw SoknadsKvitteringValidationException("Etterspurt vedlegg [$index]: ${e.message!!}")
+                throw SoknadskvitteringValidationException("Etterspurt vedlegg [$index]: ${e.message!!}")
             }
         }
     }
@@ -232,7 +232,7 @@ object SoknadEventBuilder {
             requireNotNull(soknadsId) { "varselId kan ikke være null" }
             requireNotNull(produsent) { "produsent kan ikke være null" }
         } catch (e: IllegalArgumentException) {
-            throw SoknadsKvitteringValidationException(e.message!!)
+            throw SoknadskvitteringValidationException(e.message!!)
         }
     }
 
@@ -252,7 +252,7 @@ object SoknadEventBuilder {
             requireNotNull(soknadsId) { "varselId kan ikke være null" }
             requireNotNull(produsent) { "produsent må spesifiseres manuelt hvis det ikke kan utledes fra env" }
         } catch (e: IllegalArgumentException) {
-            throw SoknadsKvitteringValidationException(e.message!!)
+            throw SoknadskvitteringValidationException(e.message!!)
         }
     }
 
@@ -286,7 +286,7 @@ object SoknadEventBuilder {
             requireNotNull(tidspunktEtterspurt) { "tidspunktEtterspurt kan ikke være null" }
             requireNotNull(produsent) { "produsent må spesifiseres manuelt hvis det ikke kan utledes fra env" }
         } catch (e: IllegalArgumentException) {
-            throw SoknadsKvitteringValidationException(e.message!!)
+            throw SoknadskvitteringValidationException(e.message!!)
         }
     }
 
@@ -319,7 +319,7 @@ object SoknadEventBuilder {
             requireNotNull(tidspunktEtterspurt) { "tidspunktEtterspurt kan ikke være null" }
             requireNotNull(produsent) { "produsent må spesifiseres manuelt hvis det ikke kan utledes fra env" }
         } catch (e: IllegalArgumentException) {
-            throw SoknadsKvitteringValidationException(e.message!!)
+            throw SoknadskvitteringValidationException(e.message!!)
         }
     }
 
@@ -353,7 +353,7 @@ object SoknadEventBuilder {
             requireNotNull(tidspunktMottatt) { "tidspunktMottatt kan ikke være null" }
             requireNotNull(produsent) { "produsent må spesifiseres manuelt hvis det ikke kan utledes fra env" }
         } catch (e: IllegalArgumentException) {
-            throw SoknadsKvitteringValidationException(e.message!!)
+            throw SoknadskvitteringValidationException(e.message!!)
         }
     }
 

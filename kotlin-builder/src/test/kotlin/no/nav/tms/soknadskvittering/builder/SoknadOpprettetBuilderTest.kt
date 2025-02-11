@@ -10,7 +10,7 @@ import io.mockk.unmockkObject
 import no.nav.tms.soknad.event.SoknadEvent
 import no.nav.tms.soknad.event.SoknadEvent.Dto.Produsent
 import no.nav.tms.soknad.event.validation.SoknadOpprettetValidation
-import no.nav.tms.soknad.event.validation.SoknadsKvitteringValidationException
+import no.nav.tms.soknad.event.validation.SoknadskvitteringValidationException
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -142,7 +142,7 @@ class SoknadOpprettetBuilderTest {
 
     @Test
     fun `feiler hvis produsent ikke er satt og det ikke kan hentes automatisk`() {
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.opprettet {
                 soknadsId = UUID.randomUUID().toString()
                 ident = "12345678910"
@@ -180,31 +180,31 @@ class SoknadOpprettetBuilderTest {
             }
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.opprettet(validInstance) { soknadsId = null }
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.opprettet(validInstance) { ident = null }
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.opprettet(validInstance) { tittel = null }
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.opprettet(validInstance) { temakode = null }
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.opprettet(validInstance) { skjemanummer = null }
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.opprettet(validInstance) { tidspunktMottatt = null }
         }
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.opprettet(validInstance) { fristEttersending = null }
         }
     }
@@ -227,9 +227,9 @@ class SoknadOpprettetBuilderTest {
 
         mockkObject(SoknadOpprettetValidation)
 
-        every { SoknadOpprettetValidation.validate(any()) } throws SoknadsKvitteringValidationException("")
+        every { SoknadOpprettetValidation.validate(any()) } throws SoknadskvitteringValidationException("")
 
-        shouldThrow<SoknadsKvitteringValidationException> {
+        shouldThrow<SoknadskvitteringValidationException> {
             SoknadEventBuilder.opprettet(validInstance) {}
         }
     }

@@ -7,7 +7,7 @@ data class ValidatorResult(
     val explanation: String? = null
 )
 
-class SoknadsKvitteringValidationException(message: String, val explanation: List<String> = emptyList()): IllegalArgumentException(message)
+class SoknadskvitteringValidationException(message: String, val explanation: List<String> = emptyList()): IllegalArgumentException(message)
 
 internal class TextLengthValidator(
     fieldName: String,
@@ -42,12 +42,12 @@ internal fun <T> List<Validator<T>>.validate(event: T) {
     }.filterNot { it.isValid }
 
     if (errors.size > 1) {
-        throw SoknadsKvitteringValidationException(
+        throw SoknadskvitteringValidationException(
             message = "Fant ${errors.size} feil ved validering av soknad-event",
             explanation = errors.mapNotNull { it.explanation }
         )
     } else if (errors.size == 1) {
-        throw SoknadsKvitteringValidationException(
+        throw SoknadskvitteringValidationException(
             message = "Feil ved validering av soknad-event: ${errors.first().explanation}",
             explanation = errors.mapNotNull { it.explanation }
         )
