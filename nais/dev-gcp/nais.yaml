@@ -32,6 +32,7 @@ spec:
     inbound:
       rules:
         - application: tms-soknad-frontend
+        - application: tms-event-test-producer-to
   gcp:
     sqlInstances:
       - name: soknadskvittering
