@@ -11,7 +11,7 @@ private const val soknadsIdParameter = "soknadsId"
 
 fun Route.soknadskvitteringRoutes(repository: SoknadsKvitteringRepository) {
     get("/kvitteringer/forenklet/alle") {
-        repository.getSoknadskvitteringForUser(userIdent)
+        repository.getActiveSoknadskvitteringForUser(userIdent)
             .map(ApiDto::mapSoknadsKvitteringHeader)
             .let {
                 call.respond(it)
@@ -19,7 +19,7 @@ fun Route.soknadskvitteringRoutes(repository: SoknadsKvitteringRepository) {
     }
 
     get("/kvitteringer/alle") {
-        repository.getSoknadskvitteringForUser(userIdent)
+        repository.getActiveSoknadskvitteringForUser(userIdent)
             .map(ApiDto::mapSoknadsKvittering)
             .let {
                 call.respond(it)

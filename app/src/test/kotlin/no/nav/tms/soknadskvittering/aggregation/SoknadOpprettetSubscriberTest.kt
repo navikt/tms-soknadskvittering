@@ -125,7 +125,7 @@ class SoknadOpprettetSubscriberTest {
         messageBroadcaster.broadcastJson(event2)
 
         repository.getSoknadsKvittering(soknadsId).shouldNotBeNull()
-        repository.getSoknadskvitteringForUser(ident).size shouldBe 1
+        repository.getActiveSoknadskvitteringForUser(ident).size shouldBe 1
     }
 
     @Test

@@ -136,7 +136,7 @@ class SoknadsKvitteringRepository(private val database: Database) {
         }
     }
 
-    fun getSoknadskvitteringForUser(ident: String): List<SoknadsKvittering> {
+    fun getActiveSoknadskvitteringForUser(ident: String): List<SoknadsKvittering> {
         return database.list {
             queryOf("""
                 select 
@@ -158,6 +158,7 @@ class SoknadsKvitteringRepository(private val database: Database) {
                     soknadskvittering
                 where 
                     ident = :ident
+                    and ferdigstilt is null
             """, mapOf(
                 "ident" to ident
             )).map {
