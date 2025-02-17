@@ -102,6 +102,19 @@ object SoknadEventBuilder {
             .let { objectMapper.writeValueAsString(it) }
     }
 
+    fun vedleggOppdatert(builderFunction: VedleggOppdatertInstance.() -> Unit): String {
+        return vedleggOppdatert(VedleggOppdatertInstance(), builderFunction)
+    }
+
+    internal fun vedleggOppdatert(instance: VedleggOppdatertInstance, builderFunction: VedleggOppdatertInstance.() -> Unit): String {
+        instance.builderFunction()
+        instance.performNullCheck()
+
+        return instance.build()
+            .also { VedleggOppdatertValidation.validate(it) }
+            .let { objectMapper.writeValueAsString(it) }
+    }
+
     class SoknadOpprettetInstance internal constructor() {
         var soknadsId: String? = null
         var ident: String? = null
@@ -177,7 +190,6 @@ object SoknadEventBuilder {
             try {
                 requireNotNull(vedleggsId) { "vedleggsId kan ikke være null" }
                 requireNotNull(tittel) { "tittel kan ikke være null" }
-                requireNotNull(linkVedlegg) { "linkVedlegg kan ikke være null" }
             } catch (e: IllegalArgumentException) {
                 throw SoknadskvitteringValidationException("Mottatt vedlegg [$index]: ${e.message!!}")
             }
@@ -351,6 +363,31 @@ object SoknadEventBuilder {
             requireNotNull(tittel) { "tittel kan ikke være null" }
             requireNotNull(brukerErAvsender) { "brukerErAvsender kan ikke være null" }
             requireNotNull(tidspunktMottatt) { "tidspunktMottatt kan ikke være null" }
+            requireNotNull(produsent) { "produsent må spesifiseres manuelt hvis det ikke kan utledes fra env" }
+        } catch (e: IllegalArgumentException) {
+            throw SoknadskvitteringValidationException(e.message!!)
+        }
+    }
+
+    class VedleggOppdatertInstance internal constructor() {
+        var soknadsId: String? = null
+        var vedleggsId: String? = null
+        var linkVedlegg: String? = null
+        var produsent: Produsent? = produsent()
+
+        val metadata = metadata()
+
+        internal fun build() = SoknadEvent.VedleggOppdatert(
+            soknadsId = soknadsId!!,
+            vedleggsId = vedleggsId!!,
+            linkVedlegg = linkVedlegg,
+            produsent = produsent!!,
+            metadata = metadata
+        )
+
+        internal fun performNullCheck() = try {
+            requireNotNull(soknadsId) { "soknadsId kan ikke være null" }
+            requireNotNull(vedleggsId) { "vedleggsId kan ikke være null" }
             requireNotNull(produsent) { "produsent må spesifiseres manuelt hvis det ikke kan utledes fra env" }
         } catch (e: IllegalArgumentException) {
             throw SoknadskvitteringValidationException(e.message!!)
