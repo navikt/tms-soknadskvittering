@@ -117,6 +117,23 @@ fun vedleggMottattEvent(
 }
 """
 
+fun vedleggOppdatertEvent(
+    soknadsId: String,
+    vedleggsId: String,
+    linkVedlegg: String? = "https://link.til.vedlegg",
+    produsent: String = produsentJson(),
+    metadata: String? = null
+) = """
+{
+    "@event_name": "vedleggOppdatert",
+    "soknadsId": "$soknadsId",
+    "vedleggsId": "$vedleggsId",
+    "linkVedlegg": ${linkVedlegg.asJson()},
+    "produsent": $produsent,
+    "metadata": ${metadata.asJson()}
+}
+"""
+
 private fun Any?.asJson() = if (this == null) {
     "null"
 } else if (this is String) {
@@ -128,13 +145,13 @@ private fun Any?.asJson() = if (this == null) {
 fun mottattVedleggJson(
     vedleggsId: String,
     tittel: String = "Navn på vedlegg",
-    linkVedlegg: String = "https://link.til.vedlegg"
+    linkVedlegg: String? = "https://link.til.vedlegg"
 ) =
     """
 {
     "vedleggsId": "$vedleggsId",
     "tittel": "$tittel",
-    "linkVedlegg": "$linkVedlegg"
+    "linkVedlegg": ${linkVedlegg.asJson()}
 } 
     """
 
