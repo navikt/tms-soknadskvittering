@@ -22,7 +22,8 @@ fun main() {
             SoknadOppdatertSubscriber(repository),
             SoknadFerdigstiltSubscriber(repository),
             VedleggEtterspurtSubscriber(repository),
-            VedleggMottattSubscriber(repository)
+            VedleggMottattSubscriber(repository),
+            VedleggOppdatertSubscriber(repository)
         )
 
         ktorModule {

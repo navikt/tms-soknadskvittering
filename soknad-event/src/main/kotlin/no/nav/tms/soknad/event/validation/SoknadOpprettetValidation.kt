@@ -22,9 +22,9 @@ object SoknadOpprettetValidation {
 
         VedleggsIdLengthValidator,
         VedleggsIdDuplicateValidator,
+        VedleggAlleredeMottattValidator,
         MottatteVedleggTittelValidator,
         MottatteVedleggLinkContentValidator,
-        VedleggAlleredeMottattValidator,
         EtterspurteVedleggTittelValidator,
         EtterspurteVedleggLinkContentValidator,
         EtterspurteVedleggBeskrivelseValidator,

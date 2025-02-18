@@ -5,7 +5,7 @@ import java.time.LocalDate
 import java.time.ZonedDateTime
 
 object SoknadEvent {
-    const val version = "v0.1"
+    const val version = "v0.1.1"
 
     data class SoknadOpprettet(
         val soknadsId: String,
@@ -71,6 +71,16 @@ object SoknadEvent {
         @JsonProperty("@event_name") val eventName = "vedleggMottatt"
     }
 
+    data class VedleggOppdatert(
+        val soknadsId: String,
+        val vedleggsId: String,
+        val linkVedlegg: String?,
+        val produsent: Dto.Produsent,
+        val metadata: Map<String, Any>?
+    ) {
+        @JsonProperty("@event_name") val eventName = "vedleggOppdatert"
+    }
+
     object Dto {
         class Produsent(
             val cluster: String,
@@ -81,7 +91,7 @@ object SoknadEvent {
         class MottattVedlegg(
             val vedleggsId: String,
             val tittel: String,
-            val linkVedlegg: String
+            val linkVedlegg: String?
         )
 
         class EtterspurtVedlegg(
