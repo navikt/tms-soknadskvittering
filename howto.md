@@ -74,7 +74,7 @@ Skal sendes når Nav mottar en søknad fra bruker
 | etterspurteVedlegg | nei              | Liste over vedlegg som mangler i det bruker sendte inn søknaden              |                                                                       |
 
 
-Praktisk eksempel med kotlin builder. Her er journalposId og link til søknad, vedlegg er ikke enda klart. Bruker har meldt at legen sender inn ytterligere informasjon.
+Praktisk eksempel med kotlin builder. Her er journalpostId og lenker til søknad og vedlegg er ikke enda klart. Bruker har også meldt at legen sender inn ytterligere informasjon.
 
 ```kotlin
 
