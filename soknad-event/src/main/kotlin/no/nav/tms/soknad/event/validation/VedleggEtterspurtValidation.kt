@@ -33,7 +33,7 @@ object VedleggEtterspurtValidation {
         override val description = validator.description
 
         override fun validate(event: VedleggEtterspurt) = assertTrue {
-            validator.validate(event.tittel)
+            validator.validate(event.beskrivelse)
         }
     }
 

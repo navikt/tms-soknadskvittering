@@ -47,13 +47,6 @@ fun Application.soknadkvitteringModule(
     install(StatusPages) {
         exception<Throwable> { call, cause ->
             when (cause) {
-//                 is VarselNotFoundException -> {
-//                    call.respondText(
-//                        status = HttpStatusCode.Forbidden,
-//                        text = "feilaktig varselId"
-//                    )
-//                    log.warn(cause) { cause.message }
-//                }
 
                 is IllegalArgumentException -> {
                     call.respondText(

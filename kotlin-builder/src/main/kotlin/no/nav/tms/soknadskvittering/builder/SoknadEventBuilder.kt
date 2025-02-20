@@ -241,7 +241,7 @@ object SoknadEventBuilder {
         )
 
         internal fun performNullCheck() = try {
-            requireNotNull(soknadsId) { "varselId kan ikke være null" }
+            requireNotNull(soknadsId) { "soknadsId kan ikke være null" }
             requireNotNull(produsent) { "produsent kan ikke være null" }
         } catch (e: IllegalArgumentException) {
             throw SoknadskvitteringValidationException(e.message!!)
@@ -261,7 +261,7 @@ object SoknadEventBuilder {
         )
 
         internal fun performNullCheck() = try {
-            requireNotNull(soknadsId) { "varselId kan ikke være null" }
+            requireNotNull(soknadsId) { "soknadsId kan ikke være null" }
             requireNotNull(produsent) { "produsent må spesifiseres manuelt hvis det ikke kan utledes fra env" }
         } catch (e: IllegalArgumentException) {
             throw SoknadskvitteringValidationException(e.message!!)

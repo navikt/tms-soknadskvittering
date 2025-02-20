@@ -11,7 +11,7 @@ object VedleggMottattValidation {
         LinkVedleggValidator
     )
 
-    fun validate(vedleggEtterspurt: VedleggMottatt) = validators.validate(vedleggEtterspurt)
+    fun validate(vedleggMottatt: VedleggMottatt) = validators.validate(vedleggMottatt)
 
     private interface VedleggMottattValidator: Validator<VedleggMottatt>
 

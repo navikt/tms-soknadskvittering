@@ -23,15 +23,15 @@ object SoknadOpprettetValidation {
         VedleggsIdLengthValidator,
         VedleggsIdDuplicateValidator,
         VedleggAlleredeMottattValidator,
-        MottatteVedleggTittelValidator,
+        MottatteVedleggTittelLengthValidator,
         MottatteVedleggLinkContentValidator,
-        EtterspurteVedleggTittelValidator,
+        EtterspurteVedleggTittelLengthValidator,
         EtterspurteVedleggLinkContentValidator,
         EtterspurteVedleggBeskrivelseValidator,
         BrukerErAvsenderValidator
     )
 
-    fun validate(opprettVarsel: SoknadOpprettet) = validators.validate(opprettVarsel)
+    fun validate(soknadOpprettet: SoknadOpprettet) = validators.validate(soknadOpprettet)
 
     private interface SoknadOpprettetValidator: Validator<SoknadOpprettet>
 
@@ -101,7 +101,7 @@ object SoknadOpprettetValidation {
         }
     }
 
-    private object MottatteVedleggTittelValidator: SoknadOpprettetValidator {
+    private object MottatteVedleggTittelLengthValidator: SoknadOpprettetValidator {
         private val validator = TextLengthValidator("Tittel for mottatte vedlegg", 255)
 
         override val description = validator.description
@@ -113,7 +113,7 @@ object SoknadOpprettetValidation {
         }
     }
 
-    private object EtterspurteVedleggTittelValidator: SoknadOpprettetValidator {
+    private object EtterspurteVedleggTittelLengthValidator: SoknadOpprettetValidator {
         private val validator = TextLengthValidator("Tittel for etterspurte vedlegg", 255)
 
         override val description = validator.description
@@ -132,7 +132,7 @@ object SoknadOpprettetValidation {
 
         override fun validate(event: SoknadOpprettet) = assertTrue {
             event.etterspurteVedlegg.all {
-                validator.validate(it.tittel)
+                validator.validate(it.beskrivelse)
             }
         }
     }

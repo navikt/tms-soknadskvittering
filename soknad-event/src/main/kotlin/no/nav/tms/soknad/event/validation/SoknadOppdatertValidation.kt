@@ -9,7 +9,7 @@ object SoknadOppdatertValidation {
         LinkSoknadValidator
     )
 
-    fun validate(opprettVarsel: SoknadEvent.SoknadOppdatert) = validators.validate(opprettVarsel)
+    fun validate(soknadOppdatert: SoknadEvent.SoknadOppdatert) = validators.validate(soknadOppdatert)
 
     private interface SoknadOppdatertValidator: Validator<SoknadEvent.SoknadOppdatert>
 
