@@ -1,11 +1,15 @@
 package no.nav.tms.soknadskvittering.aggregation
 
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import no.nav.tms.kafka.application.MessageBroadcaster
 import no.nav.tms.soknadskvittering.common.LocalPostgresDatabase
 import no.nav.tms.soknadskvittering.common.shouldBeSameTimeAs
+import no.nav.tms.soknadskvittering.historikk.HistorikkAppender
+import no.nav.tms.soknadskvittering.historikk.HistorikkRepository
+import no.nav.tms.soknadskvittering.historikk.firstHistorikkEntry
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper.nowAtUtc
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -14,9 +18,11 @@ class VedleggEtterspurtSubscriberTest {
     private val database = LocalPostgresDatabase.cleanDb()
     private val repository = SoknadsKvitteringRepository(database)
 
+    private val appender = HistorikkAppender(HistorikkRepository(database))
+
     private val messageBroadcaster = MessageBroadcaster(
-        SoknadOpprettetSubscriber(repository),
-        VedleggEtterspurtSubscriber(repository)
+        SoknadOpprettetSubscriber(repository, appender),
+        VedleggEtterspurtSubscriber(repository, appender)
     )
 
     @Test
@@ -153,5 +159,41 @@ class VedleggEtterspurtSubscriberTest {
             queryOf("select count(*) as antall from soknadskvittering")
                 .map { it.int("antall") }.asSingle
         } shouldBe 0
+    }
+
+    @Test
+    fun `legger til hendelse i event-historikk når vedlegg blir etterspurt`() {
+        val soknadsId = UUID.randomUUID().toString()
+        val vedleggsId = "nylig-etterspurt"
+        val ident = "12345678900"
+
+        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        vedleggEtterspurtEvent(soknadsId, vedleggsId).let { messageBroadcaster.broadcastJson(it) }
+
+        database.firstHistorikkEntry(soknadsId, "vedleggEtterspurt").shouldNotBeNull()
+    }
+
+    @Test
+    fun `legger ikke til hendelse i event-historikk når vedlegg allerede er etterspurt`() {
+        val soknadsId = UUID.randomUUID().toString()
+        val vedleggsId = "vedlegg-123"
+        val ident = "12345678900"
+
+        val etterspurt = etterspurtVedleggJson(vedleggsId)
+
+        opprettetEvent(soknadsId, ident, etterspurteVedlegg = listOf(etterspurt)).let { messageBroadcaster.broadcastJson(it) }
+        vedleggEtterspurtEvent(soknadsId, vedleggsId).let { messageBroadcaster.broadcastJson(it) }
+
+        database.firstHistorikkEntry(soknadsId, "vedleggEtterspurt").shouldBeNull()
+    }
+
+    @Test
+    fun `legger ikke til hendelse i event-historikk når tilhørende søknad ikke finnes`() {
+        val soknadsId = UUID.randomUUID().toString()
+        val vedleggsId = "vedlegg-123"
+
+        vedleggEtterspurtEvent(soknadsId, vedleggsId).let { messageBroadcaster.broadcastJson(it) }
+
+        database.firstHistorikkEntry(soknadsId, "vedleggEtterspurt").shouldBeNull()
     }
 }

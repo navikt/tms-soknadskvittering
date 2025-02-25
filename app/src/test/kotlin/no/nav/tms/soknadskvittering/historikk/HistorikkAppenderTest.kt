@@ -82,39 +82,36 @@ class HistorikkAppenderTest {
             metadata = null
         ).let { appender.soknadOpprettet(it) }
 
-        val entries = getEntries(soknadsId)
+        val entry = database.firstHistorikkEntry(soknadsId)
 
-        entries.size shouldBe 1
+        entry.shouldNotBeNull()
+        entry.event shouldBe "soknadOpprettet"
+        entry.soknadsId shouldBe soknadsId
+        entry.produsent shouldBe produsent
 
-        entries.first().let {
-            it.event shouldBe "soknadOpprettet"
-            it.soknadsId shouldBe soknadsId
-            it.produsent shouldBe produsent
+        entry.innhold.let { innhold ->
+            innhold.shouldNotBeNull()
+            innhold["ident"].asText() shouldBe ident
+            innhold["tittel"].asText() shouldBe tittel
+            innhold["temakode"].asText() shouldBe temakode
+            innhold["skjemanummer"].asText() shouldBe skjemanummer
+            innhold["tidspunktMottatt"].asZonedDateTime() shouldBe tidspunktMottatt
+            innhold["fristEttersending"].asText() shouldBe fristEttersending.toString()
+            innhold["linkSoknad"].asText() shouldBe linkSoknad
+            innhold["journalpostId"].asText() shouldBe journalpostId
 
-            it.innhold.let { innhold ->
-                innhold.shouldNotBeNull()
-                innhold["ident"].asText() shouldBe ident
-                innhold["tittel"].asText() shouldBe tittel
-                innhold["temakode"].asText() shouldBe temakode
-                innhold["skjemanummer"].asText() shouldBe skjemanummer
-                innhold["tidspunktMottatt"].asZonedDateTime() shouldBe tidspunktMottatt
-                innhold["fristEttersending"].asText() shouldBe fristEttersending.toString()
-                innhold["linkSoknad"].asText() shouldBe linkSoknad
-                innhold["journalpostId"].asText() shouldBe journalpostId
+            innhold["mottatteVedlegg"].first().let { vedlegg ->
+                vedlegg["vedleggsId"].asText() shouldBe mottattVedleggVedleggsId
+                vedlegg["tittel"].asText() shouldBe mottattVedleggTittel
+                vedlegg["linkVedlegg"].asText() shouldBe mottattVedleggLinkVedlegg
+            }
 
-                innhold["mottatteVedlegg"].first().let { vedlegg ->
-                    vedlegg["vedleggsId"].asText() shouldBe mottattVedleggVedleggsId
-                    vedlegg["tittel"].asText() shouldBe mottattVedleggTittel
-                    vedlegg["linkVedlegg"].asText() shouldBe mottattVedleggLinkVedlegg
-                }
-
-                innhold["etterspurteVedlegg"].first().let { vedlegg ->
-                    vedlegg["vedleggsId"].asText() shouldBe etterspurtVedleggVedleggsId
-                    vedlegg["brukerErAvsender"].asBoolean() shouldBe etterspurtVedleggBrukerErAvsender
-                    vedlegg["tittel"].asText() shouldBe etterspurtVedleggTittel
-                    vedlegg["linkEttersending"]?.asText() shouldBe etterspurtVedleggLinkEttersending
-                    vedlegg["beskrivelse"]?.asText() shouldBe etterspurtVedleggBeskrivelse
-                }
+            innhold["etterspurteVedlegg"].first().let { vedlegg ->
+                vedlegg["vedleggsId"].asText() shouldBe etterspurtVedleggVedleggsId
+                vedlegg["brukerErAvsender"].asBoolean() shouldBe etterspurtVedleggBrukerErAvsender
+                vedlegg["tittel"].asText() shouldBe etterspurtVedleggTittel
+                vedlegg["linkEttersending"]?.asText() shouldBe etterspurtVedleggLinkEttersending
+                vedlegg["beskrivelse"]?.asText() shouldBe etterspurtVedleggBeskrivelse
             }
         }
     }
@@ -136,21 +133,18 @@ class HistorikkAppenderTest {
             metadata = null
         ).let { appender.soknadOppdatert(it) }
 
-        val entries = getEntries(soknadsId)
+        val entry = database.firstHistorikkEntry(soknadsId)
 
-        entries.size shouldBe 1
+        entry.shouldNotBeNull()
+        entry.event shouldBe "soknadOppdatert"
+        entry.soknadsId shouldBe soknadsId
+        entry.produsent shouldBe produsent
 
-        entries.first().let {
-            it.event shouldBe "soknadOppdatert"
-            it.soknadsId shouldBe soknadsId
-            it.produsent shouldBe produsent
-
-            it.innhold.let { innhold ->
-                innhold.shouldNotBeNull()
-                innhold["fristEttersending"]?.asText() shouldBe null
-                innhold["linkSoknad"].asText() shouldBe linkSoknad
-                innhold["journalpostId"].asText() shouldBe journalpostId
-            }
+        entry.innhold.let { innhold ->
+            innhold.shouldNotBeNull()
+            innhold["fristEttersending"]?.asText() shouldBe null
+            innhold["linkSoknad"].asText() shouldBe linkSoknad
+            innhold["journalpostId"].asText() shouldBe journalpostId
         }
     }
 
@@ -166,17 +160,14 @@ class HistorikkAppenderTest {
             metadata = null
         ).let { appender.soknadFerdigstilt(it) }
 
-        val entries = getEntries(soknadsId)
+        val entry = database.firstHistorikkEntry(soknadsId)
 
-        entries.size shouldBe 1
+        entry.shouldNotBeNull()
+        entry.event shouldBe "soknadFerdigstilt"
+        entry.soknadsId shouldBe soknadsId
+        entry.produsent shouldBe produsent
 
-        entries.first().let {
-            it.event shouldBe "soknadFerdigstilt"
-            it.soknadsId shouldBe soknadsId
-            it.produsent shouldBe produsent
-
-            it.innhold.shouldBeNull()
-        }
+        entry.innhold.shouldBeNull()
     }
 
     @Test
@@ -188,7 +179,7 @@ class HistorikkAppenderTest {
         val tittel = "Tittel på vedlegg som skal sendes av bruker"
         val linkEttersending = "https://link.til.ettersending"
 
-        val tidspunkt = ZonedDateTime.parse("2025-02-01T12:00:00Z")
+        val tidspunkt = ZonedDateTimeHelper.nowAtUtc().minusDays(1)
 
         val produsent = SoknadEvent.Dto.Produsent("dev", "team", "app")
 
@@ -205,24 +196,23 @@ class HistorikkAppenderTest {
         ).let { appender.vedleggEtterspurt(it) }
 
 
-        val entries = getEntries(soknadsId)
+        val entry = database.firstHistorikkEntry(soknadsId)
 
-        entries.size shouldBe 1
-        entries.first().let {
-            it.event shouldBe "vedleggEtterspurt"
-            it.soknadsId shouldBe soknadsId
-            it.produsent shouldBe produsent
+        entry.shouldNotBeNull()
+        entry.event shouldBe "vedleggEtterspurt"
+        entry.soknadsId shouldBe soknadsId
+        entry.produsent shouldBe produsent
 
-            it.innhold.let { innhold ->
-                innhold.shouldNotBeNull()
-                innhold["vedleggsId"].asText() shouldBe vedleggsId
-                innhold["brukerErAvsender"].asText() shouldBe brukerErAvsender
-                innhold["tittel"].asText() shouldBe tittel
-                innhold["linkEttersending"].asText() shouldBe linkEttersending
-                innhold["beskrivelse"]?.asText() shouldBe null
-                innhold["tidspunktEtterspurt"].asText() shouldBe tidspunkt
-            }
+        entry.innhold.let { innhold ->
+            innhold.shouldNotBeNull()
+            innhold["vedleggsId"].asText() shouldBe vedleggsId
+            innhold["brukerErAvsender"].asBoolean() shouldBe brukerErAvsender
+            innhold["tittel"].asText() shouldBe tittel
+            innhold["linkEttersending"].asText() shouldBe linkEttersending
+            innhold["beskrivelse"]?.asText() shouldBe null
+            innhold["tidspunktEtterspurt"].asZonedDateTime() shouldBe tidspunkt
         }
+
     }
 
     @Test
@@ -250,23 +240,22 @@ class HistorikkAppenderTest {
         ).let { appender.vedleggMottatt(it) }
 
 
-        val entries = getEntries(soknadsId)
+        val entry = database.firstHistorikkEntry(soknadsId)
 
-        entries.size shouldBe 1
-        entries.first().let {
-            it.event shouldBe "vedleggMottatt"
-            it.soknadsId shouldBe soknadsId
-            it.produsent shouldBe produsent
+        entry.shouldNotBeNull()
+        entry.event shouldBe "vedleggMottatt"
+        entry.soknadsId shouldBe soknadsId
+        entry.produsent shouldBe produsent
 
-            it.innhold.let { innhold ->
-                innhold.shouldNotBeNull()
-                innhold["vedleggsId"].asText() shouldBe vedleggsId
-                innhold["brukerErAvsender"].asBoolean() shouldBe brukerErAvsender
-                innhold["tittel"].asText() shouldBe tittel
-                innhold["linkVedlegg"].asText() shouldBe linkVedlegg
-                innhold["tidspunktMottatt"].asZonedDateTime() shouldBe tidspunkt
-            }
+        entry.innhold.let { innhold ->
+            innhold.shouldNotBeNull()
+            innhold["vedleggsId"].asText() shouldBe vedleggsId
+            innhold["brukerErAvsender"].asBoolean() shouldBe brukerErAvsender
+            innhold["tittel"].asText() shouldBe tittel
+            innhold["linkVedlegg"].asText() shouldBe linkVedlegg
+            innhold["tidspunktMottatt"].asZonedDateTime() shouldBe tidspunkt
         }
+
     }
 
     @Test
@@ -287,19 +276,17 @@ class HistorikkAppenderTest {
         ).let { appender.vedleggOppdatert(it) }
 
 
-        val entries = getEntries(soknadsId)
+        val entry = database.firstHistorikkEntry(soknadsId)
 
-        entries.size shouldBe 1
-        entries.first().let {
-            it.event shouldBe "vedleggOppdatert"
-            it.soknadsId shouldBe soknadsId
-            it.produsent shouldBe produsent
+        entry.shouldNotBeNull()
+        entry.event shouldBe "vedleggOppdatert"
+        entry.soknadsId shouldBe soknadsId
+        entry.produsent shouldBe produsent
 
-            it.innhold.let { innhold ->
-                innhold.shouldNotBeNull()
-                innhold["vedleggsId"].asText() shouldBe vedleggsId
-                innhold["linkVedlegg"].asText() shouldBe linkVedlegg
-            }
+        entry.innhold.let { innhold ->
+            innhold.shouldNotBeNull()
+            innhold["vedleggsId"].asText() shouldBe vedleggsId
+            innhold["linkVedlegg"].asText() shouldBe linkVedlegg
         }
     }
 
@@ -318,39 +305,19 @@ class HistorikkAppenderTest {
             metadata = mapOf("meta" to "data")
         ).let { appender.soknadOppdatert(it) }
 
-        val entries = getEntries(soknadsId)
+        val entry = database.firstHistorikkEntry(soknadsId)
 
-        entries.size shouldBe 1
+        entry.shouldNotBeNull()
+        entry.event shouldBe "soknadOppdatert"
 
-        entries.first().let {
-            it.event shouldBe "soknadOppdatert"
+        entry.innhold.let { innhold ->
+            innhold.shouldNotBeNull()
+            innhold["eventName"].shouldBeNull()
+            innhold["@event_name"].shouldBeNull()
 
-            it.innhold.let { innhold ->
-                innhold.shouldNotBeNull()
-                innhold["eventName"].shouldBeNull()
-                innhold["@event_name"].shouldBeNull()
-
-                innhold["soknadsId"].shouldBeNull()
-                innhold["produsent"].shouldBeNull()
-                innhold["metadata"].shouldBeNull()
-            }
-        }
-    }
-
-    private fun getEntries(soknadsId: String): List<HistorikkEntry> {
-        return database.list {
-            queryOf(
-                "select soknadsId, event, innhold, produsent, tidspunkt from soknadsevent_historikk where soknadsId = :soknadsId",
-                mapOf("soknadsId" to soknadsId)
-            ).map {
-                HistorikkEntry(
-                    soknadsId = it.string("soknadsId"),
-                    event = it.string("event"),
-                    innhold = it.jsonOrNull("innhold"),
-                    produsent = it.json("produsent"),
-                    tidspunkt = it.zonedDateTime("tidspunkt")
-                )
-            }.asList
+            innhold["soknadsId"].shouldBeNull()
+            innhold["produsent"].shouldBeNull()
+            innhold["metadata"].shouldBeNull()
         }
     }
 }

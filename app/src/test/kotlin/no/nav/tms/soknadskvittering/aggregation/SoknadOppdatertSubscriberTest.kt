@@ -1,10 +1,14 @@
 package no.nav.tms.soknadskvittering.aggregation
 
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import no.nav.tms.kafka.application.MessageBroadcaster
 import no.nav.tms.soknadskvittering.common.LocalPostgresDatabase
+import no.nav.tms.soknadskvittering.historikk.HistorikkAppender
+import no.nav.tms.soknadskvittering.historikk.HistorikkRepository
+import no.nav.tms.soknadskvittering.historikk.firstHistorikkEntry
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -15,14 +19,17 @@ class SoknadOppdatertSubscriberTest {
     private val database = LocalPostgresDatabase.cleanDb()
     private val repository = SoknadsKvitteringRepository(database)
 
+    private val appender = HistorikkAppender(HistorikkRepository(database))
+
     private val messageBroadcaster = MessageBroadcaster(
-        SoknadOpprettetSubscriber(repository),
-        SoknadOppdatertSubscriber(repository)
+        SoknadOpprettetSubscriber(repository, appender),
+        SoknadOppdatertSubscriber(repository, appender)
     )
 
     @AfterEach
     fun cleanUp() {
         database.update { queryOf("delete from soknadskvittering") }
+        database.update { queryOf("delete from soknadsevent_historikk") }
     }
 
     @Test
@@ -126,5 +133,41 @@ class SoknadOppdatertSubscriberTest {
             queryOf("select count(*) as antall from soknadskvittering")
                 .map { it.int("antall") }.asSingle
         } shouldBe 0
+    }
+
+    @Test
+    fun `legger til hendelse i event-historikk når søknad blir oppdatert`() {
+        val soknadsId = UUID.randomUUID().toString()
+        val ident = "12345678900"
+
+        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        oppdatertEvent(soknadsId, journalpostId = "ny-123").let { messageBroadcaster.broadcastJson(it) }
+
+        database.firstHistorikkEntry(soknadsId, "soknadOppdatert").shouldNotBeNull()
+    }
+
+    @Test
+    fun `legger ikke til hendelse i event-historikk når søknad som skulle oppdateres ikke finnes`() {
+        val soknadsId = UUID.randomUUID().toString()
+
+        oppdatertEvent(soknadsId, journalpostId = "ny-123").let { messageBroadcaster.broadcastJson(it) }
+
+        database.firstHistorikkEntry(soknadsId, "soknadOppdatert").shouldBeNull()
+    }
+
+    @Test
+    fun `legger ikke til hendelse i event-historikk når oppdatert-event ikke hadde noe innhold`() {
+        val soknadsId = UUID.randomUUID().toString()
+        val ident = "12345678900"
+
+        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        oppdatertEvent(
+            soknadsId,
+            fristEttersending = null,
+            journalpostId = null,
+            linkSoknad = null
+        ).let { messageBroadcaster.broadcastJson(it) }
+
+        database.firstHistorikkEntry(soknadsId, "soknadOppdatert").shouldBeNull()
     }
 }

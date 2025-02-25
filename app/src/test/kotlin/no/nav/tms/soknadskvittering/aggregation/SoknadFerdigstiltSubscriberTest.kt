@@ -6,6 +6,9 @@ import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import no.nav.tms.kafka.application.MessageBroadcaster
 import no.nav.tms.soknadskvittering.common.LocalPostgresDatabase
+import no.nav.tms.soknadskvittering.historikk.HistorikkAppender
+import no.nav.tms.soknadskvittering.historikk.HistorikkRepository
+import no.nav.tms.soknadskvittering.historikk.firstHistorikkEntry
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -15,14 +18,17 @@ class SoknadFerdigstiltSubscriberTest {
     private val database = LocalPostgresDatabase.cleanDb()
     private val repository = SoknadsKvitteringRepository(database)
 
+    private val appender = HistorikkAppender(HistorikkRepository(database))
+
     private val messageBroadcaster = MessageBroadcaster(
-        SoknadOpprettetSubscriber(repository),
-        SoknadFerdigstiltSubscriber(repository)
+        SoknadOpprettetSubscriber(repository, appender),
+        SoknadFerdigstiltSubscriber(repository, appender)
     )
 
     @AfterEach
     fun cleanUp() {
         database.update { queryOf("delete from soknadskvittering") }
+        database.update { queryOf("delete from soknadsevent_historikk") }
     }
 
     @Test
@@ -52,5 +58,25 @@ class SoknadFerdigstiltSubscriberTest {
             queryOf("select count(*) as antall from soknadskvittering")
                 .map { it.int("antall") }.asSingle
         } shouldBe 0
+    }
+
+    @Test
+    fun `legger til hendelse i event-historikk når søknad blir ferdigstilt`() {
+        val soknadsId = UUID.randomUUID().toString()
+        val ident = "12345678900"
+
+        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        ferdigstiltEvent(soknadsId).let { messageBroadcaster.broadcastJson(it) }
+
+        database.firstHistorikkEntry(soknadsId, "soknadFerdigstilt").shouldNotBeNull()
+    }
+
+    @Test
+    fun `legger ikke til hendelse i event-historikk hvis søknad ikke fantes`() {
+        val soknadsId = UUID.randomUUID().toString()
+
+        ferdigstiltEvent(soknadsId).let { messageBroadcaster.broadcastJson(it) }
+
+        database.firstHistorikkEntry(soknadsId, "soknadFerdigstilt").shouldBeNull()
     }
 }

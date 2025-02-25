@@ -1,10 +1,15 @@
 package no.nav.tms.soknadskvittering.aggregation
 
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import no.nav.tms.kafka.application.MessageBroadcaster
 import no.nav.tms.soknadskvittering.common.LocalPostgresDatabase
 import no.nav.tms.soknadskvittering.common.shouldBeSameTimeAs
+import no.nav.tms.soknadskvittering.historikk.HistorikkAppender
+import no.nav.tms.soknadskvittering.historikk.HistorikkRepository
+import no.nav.tms.soknadskvittering.historikk.firstHistorikkEntry
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -13,9 +18,11 @@ class VedleggMottattSubscriberTest {
     private val database = LocalPostgresDatabase.cleanDb()
     private val repository = SoknadsKvitteringRepository(database)
 
+    private val appender = HistorikkAppender(HistorikkRepository(database))
+
     private val messageBroadcaster = MessageBroadcaster(
-        SoknadOpprettetSubscriber(repository),
-        VedleggMottattSubscriber(repository)
+        SoknadOpprettetSubscriber(repository, appender),
+        VedleggMottattSubscriber(repository, appender)
     )
 
     @Test
@@ -126,4 +133,39 @@ class VedleggMottattSubscriberTest {
         } shouldBe 0
     }
 
+    @Test
+    fun `legger til hendelse i event-historikk når vedlegg blir mottatt`() {
+        val soknadsId = UUID.randomUUID().toString()
+        val vedleggsId = "nytt-vedlegg"
+        val ident = "12345678900"
+
+        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        vedleggMottattEvent(soknadsId, vedleggsId).let { messageBroadcaster.broadcastJson(it) }
+
+        database.firstHistorikkEntry(soknadsId, "vedleggMottatt").shouldNotBeNull()
+    }
+
+    @Test
+    fun `legger ikke til hendelse i event-historikk når det allerede er mottatt`() {
+        val soknadsId = UUID.randomUUID().toString()
+        val vedleggsId = "vedlegg-123"
+        val ident = "12345678900"
+
+        val vedlegg = mottattVedleggJson(vedleggsId)
+
+        opprettetEvent(soknadsId, ident, mottatteVedlegg = listOf(vedlegg)).let { messageBroadcaster.broadcastJson(it) }
+        vedleggMottattEvent(soknadsId, vedleggsId).let { messageBroadcaster.broadcastJson(it) }
+
+        database.firstHistorikkEntry(soknadsId, "vedleggMottatt").shouldBeNull()
+    }
+
+    @Test
+    fun `legger ikke til hendelse i event-historikk når tilhørende søknad ikke finnes`() {
+        val soknadsId = UUID.randomUUID().toString()
+        val vedleggsId = "nytt-vedlegg"
+
+        vedleggMottattEvent(soknadsId, vedleggsId).let { messageBroadcaster.broadcastJson(it) }
+
+        database.firstHistorikkEntry(soknadsId, "vedleggMottatt").shouldBeNull()
+    }
 }

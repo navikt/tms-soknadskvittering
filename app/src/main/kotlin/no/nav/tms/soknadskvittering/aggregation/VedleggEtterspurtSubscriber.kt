@@ -8,10 +8,14 @@ import no.nav.tms.kafka.application.Subscription
 import no.nav.tms.soknad.event.SoknadEvent
 import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.EtterspurtVedlegg
 import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.SoknadsKvittering
+import no.nav.tms.soknadskvittering.historikk.HistorikkAppender
 import no.nav.tms.soknadskvittering.setup.defaultObjectMapper
 import no.nav.tms.soknadskvittering.setup.withMDC
 
-class VedleggEtterspurtSubscriber(private val repository: SoknadsKvitteringRepository): Subscriber() {
+class VedleggEtterspurtSubscriber(
+    private val repository: SoknadsKvitteringRepository,
+    private val historikkAppender: HistorikkAppender
+): Subscriber() {
 
     override fun subscribe() = Subscription.forEvent("vedleggEtterspurt")
         .withFields(
@@ -44,16 +48,16 @@ class VedleggEtterspurtSubscriber(private val repository: SoknadsKvitteringRepos
 
     private fun leggTilEtterspurtVedlegg(soknadsKvittering: SoknadsKvittering, event: SoknadEvent.VedleggEtterspurt) {
 
+        if (soknadsKvittering.etterspurteVedlegg.any { it.vedleggsId == event.vedleggsId }) {
+            log.warn { "Kan ikke etterspørre vedlegg på nytt" }
+            return
+        }
+
         val alleredeMottatt = if (soknadsKvittering.mottatteVedlegg.any { it.vedleggsId == event.vedleggsId } ) {
             log.info { "Fant eksisterende vedlegg. Markerer som allerede mottatt." }
             true
         } else {
             false
-        }
-
-        if (soknadsKvittering.etterspurteVedlegg.any { it.vedleggsId == event.vedleggsId }) {
-            log.warn { "Kan ikke etterspørre vedlegg på nytt" }
-            return
         }
 
         val vedlegg = EtterspurtVedlegg(
@@ -67,5 +71,7 @@ class VedleggEtterspurtSubscriber(private val repository: SoknadsKvitteringRepos
         )
 
         repository.oppdaterEtterspurteVedlegg(soknadsId = soknadsKvittering.soknadsId, soknadsKvittering.etterspurteVedlegg + vedlegg)
+
+        historikkAppender.vedleggEtterspurt(event)
     }
 }
