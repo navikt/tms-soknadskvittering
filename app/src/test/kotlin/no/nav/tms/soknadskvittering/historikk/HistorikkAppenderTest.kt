@@ -5,12 +5,16 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import no.nav.tms.soknad.event.SoknadEvent
+import no.nav.tms.soknadskvittering.aggregation.DatabaseDto
+import no.nav.tms.soknadskvittering.aggregation.SoknadsKvitteringRepository
 import no.nav.tms.soknadskvittering.common.LocalPostgresDatabase
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper.asZonedDateTime
 import no.nav.tms.soknadskvittering.setup.json
 import no.nav.tms.soknadskvittering.setup.jsonOrNull
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -23,6 +27,13 @@ class HistorikkAppenderTest {
 
     private val appender = HistorikkAppender(repository)
 
+    private val soknadsId = UUID.randomUUID().toString()
+
+    @BeforeEach
+    fun setup() {
+        insertUnderlyingSoknadsKvittering()
+    }
+
     @AfterEach
     fun cleanUp() {
         database.update { queryOf("delete from soknadsevent_historikk") }
@@ -30,7 +41,6 @@ class HistorikkAppenderTest {
 
     @Test
     fun `legger til opprettet-event på ventet format`() {
-        val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
         val tittel = "En søknad"
         val temakode = "AAP"
@@ -118,7 +128,6 @@ class HistorikkAppenderTest {
 
     @Test
     fun `legger til oppdatert-event på ventet format`() {
-        val soknadsId = UUID.randomUUID().toString()
         val linkSoknad = "https://annen.link.til.soknad"
         val journalpostId = "456"
 
@@ -150,7 +159,6 @@ class HistorikkAppenderTest {
 
     @Test
     fun `legger til ferdigstilt-event på ventet format`() {
-        val soknadsId = UUID.randomUUID().toString()
 
         val produsent = SoknadEvent.Dto.Produsent("dev", "team", "app")
 
@@ -172,7 +180,6 @@ class HistorikkAppenderTest {
 
     @Test
     fun `legger til vedleggEtterspurt-event på ventet format`() {
-        val soknadsId = UUID.randomUUID().toString()
 
         val vedleggsId = "vedlegg-1"
         val brukerErAvsender = true
@@ -217,7 +224,6 @@ class HistorikkAppenderTest {
 
     @Test
     fun `legger til vedleggMottatt-event på ventet format`() {
-        val soknadsId = UUID.randomUUID().toString()
 
         val vedleggsId = "vedlegg-2"
         val brukerErAvsender = true
@@ -260,7 +266,6 @@ class HistorikkAppenderTest {
 
     @Test
     fun `legger til vedleggOppdatert-event på ventet format`() {
-        val soknadsId = UUID.randomUUID().toString()
 
         val vedleggsId = "vedlegg-3"
         val linkVedlegg = "https://ny.link.til.vedlegg"
@@ -292,7 +297,6 @@ class HistorikkAppenderTest {
 
     @Test
     fun `ignorer bestemte felt fra eventet i json-objektet i 'innhold'`() {
-        val soknadsId = UUID.randomUUID().toString()
 
         val produsent = SoknadEvent.Dto.Produsent("dev", "team", "app")
 
@@ -318,6 +322,27 @@ class HistorikkAppenderTest {
             innhold["soknadsId"].shouldBeNull()
             innhold["produsent"].shouldBeNull()
             innhold["metadata"].shouldBeNull()
+        }
+    }
+
+    private fun insertUnderlyingSoknadsKvittering() {
+        DatabaseDto.SoknadsKvittering(
+            soknadsId = soknadsId,
+            ident = "dummy",
+            tittel = "dummy",
+            temakode = "dummy",
+            skjemanummer = "dummy",
+            tidspunktMottatt = ZonedDateTime.now(),
+            fristEttersending = LocalDate.now(),
+            linkSoknad = "dummy",
+            journalpostId = "dummy",
+            mottatteVedlegg = emptyList(),
+            etterspurteVedlegg = emptyList(),
+            produsent = DatabaseDto.Produsent("", "", ""),
+            opprettet = ZonedDateTime.now(),
+            ferdigstilt = null,
+        ).let {
+            SoknadsKvitteringRepository(database).insertSoknadsKvittering(it)
         }
     }
 }
