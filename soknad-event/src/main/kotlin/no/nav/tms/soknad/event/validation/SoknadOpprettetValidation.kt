@@ -27,8 +27,7 @@ object SoknadOpprettetValidation {
         MottatteVedleggLinkContentValidator,
         EtterspurteVedleggTittelLengthValidator,
         EtterspurteVedleggLinkContentValidator,
-        EtterspurteVedleggBeskrivelseValidator,
-        BrukerErAvsenderValidator
+        EtterspurteVedleggBeskrivelseValidator
     )
 
     fun validate(soknadOpprettet: SoknadOpprettet) = validators.validate(soknadOpprettet)
@@ -184,20 +183,6 @@ object SoknadOpprettetValidation {
         override fun validate(event: SoknadOpprettet) = assertTrue {
             event.etterspurteVedlegg.all {
                 LinkContentValidator.validate(it.linkEttersending)
-            }
-        }
-    }
-
-    private object BrukerErAvsenderValidator: SoknadOpprettetValidator {
-        override val description = "Link til ettersending er påkrevd dersom bruker skal sende inn"
-
-        override fun validate(event: SoknadOpprettet) = assertTrue {
-            event.etterspurteVedlegg.all {
-                if (it.brukerErAvsender) {
-                    it.linkEttersending != null
-                } else {
-                    true
-                }
             }
         }
     }

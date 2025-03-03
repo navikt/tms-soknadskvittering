@@ -183,7 +183,7 @@ object SoknadEventBuilder {
         fun buildDto() = SoknadEvent.Dto.MottattVedlegg(
             vedleggsId = vedleggsId!!,
             tittel = tittel!!,
-            linkVedlegg = linkVedlegg!!
+            linkVedlegg = linkVedlegg
         )
 
         internal fun performNullCheck(index: Int) {
@@ -283,7 +283,7 @@ object SoknadEventBuilder {
             soknadsId = soknadsId!!,
             vedleggsId = vedleggsId!!,
             tittel = tittel!!,
-            linkEttersending = linkEttersending!!,
+            linkEttersending = linkEttersending,
             beskrivelse = null,
             tidspunktEtterspurt = tidspunktEtterspurt!!,
             produsent = produsent!!,
@@ -294,7 +294,6 @@ object SoknadEventBuilder {
             requireNotNull(soknadsId) { "soknadsId kan ikke være null" }
             requireNotNull(vedleggsId) { "vedleggsId kan ikke være null" }
             requireNotNull(tittel) { "tittel kan ikke være null" }
-            requireNotNull(linkEttersending) { "linkEttersending kan ikke være null" }
             requireNotNull(tidspunktEtterspurt) { "tidspunktEtterspurt kan ikke være null" }
             requireNotNull(produsent) { "produsent må spesifiseres manuelt hvis det ikke kan utledes fra env" }
         } catch (e: IllegalArgumentException) {

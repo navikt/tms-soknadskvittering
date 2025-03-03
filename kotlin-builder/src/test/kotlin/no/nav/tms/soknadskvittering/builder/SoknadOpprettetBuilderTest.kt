@@ -210,6 +210,112 @@ class SoknadOpprettetBuilderTest {
     }
 
     @Test
+    fun `feiler hvis påkrevede felt for mottatte vedlegg er null`() {
+        val validInstance = SoknadEventBuilder.SoknadOpprettetInstance().apply {
+            soknadsId = UUID.randomUUID().toString()
+            ident = "12345678910"
+            tittel = "Soknadstittel"
+            temakode = "TEM"
+            skjemanummer = "Skjema-123"
+            tidspunktMottatt = ZonedDateTime.parse("2025-02-01T10:00:00Z")
+            fristEttersending = LocalDate.parse("2025-03-01")
+            linkSoknad = "https://link.til.soknad"
+            journalpostId = "123456"
+            produsent = Produsent("cluster", "namespace", "app")
+        }
+
+        shouldNotThrowAny {
+            SoknadEventBuilder.opprettet(validInstance) {
+                mottattVedlegg {
+                    vedleggsId = "dummy"
+                    tittel = "dummy"
+                    linkVedlegg = null
+                }
+            }
+        }
+
+        shouldThrow<SoknadskvitteringValidationException> {
+            SoknadEventBuilder.opprettet(validInstance) {
+                mottattVedlegg {
+                    vedleggsId = "dummy"
+                    tittel = null
+                    linkVedlegg = "https://dummy"
+                }
+            }
+        }
+
+        shouldThrow<SoknadskvitteringValidationException> {
+            SoknadEventBuilder.opprettet(validInstance) {
+                mottattVedlegg {
+                    vedleggsId = null
+                    tittel = "dummy"
+                    linkVedlegg = "https://dummy"
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `feiler hvis påkrevede felt for etterspurte vedlegg er null`() {
+        val validInstance = SoknadEventBuilder.SoknadOpprettetInstance().apply {
+            soknadsId = UUID.randomUUID().toString()
+            ident = "12345678910"
+            tittel = "Soknadstittel"
+            temakode = "TEM"
+            skjemanummer = "Skjema-123"
+            tidspunktMottatt = ZonedDateTime.parse("2025-02-01T10:00:00Z")
+            fristEttersending = LocalDate.parse("2025-03-01")
+            linkSoknad = "https://link.til.soknad"
+            journalpostId = "123456"
+            produsent = Produsent("cluster", "namespace", "app")
+        }
+
+        shouldNotThrowAny {
+            SoknadEventBuilder.opprettet(validInstance) {
+                etterspurtVedlegg {
+                    vedleggsId = "dummy"
+                    tittel = "dummy"
+                    brukerErAvsender = true
+                    linkEttersending = null
+                }
+            }
+        }
+
+        shouldThrow<SoknadskvitteringValidationException> {
+            SoknadEventBuilder.opprettet(validInstance) {
+                etterspurtVedlegg {
+                    vedleggsId = null
+                    tittel = "dummy"
+                    brukerErAvsender = true
+                    linkEttersending = "https://dummy"
+                }
+            }
+        }
+
+        shouldThrow<SoknadskvitteringValidationException> {
+            SoknadEventBuilder.opprettet(validInstance) {
+                etterspurtVedlegg {
+                    vedleggsId = "dummy"
+                    tittel = null
+                    brukerErAvsender = true
+                    linkEttersending = "https://dummy"
+                }
+            }
+        }
+
+        shouldThrow<SoknadskvitteringValidationException> {
+            SoknadEventBuilder.opprettet(validInstance) {
+                etterspurtVedlegg {
+                    vedleggsId = "dummy"
+                    tittel = "dummy"
+                    brukerErAvsender = null
+                    linkEttersending = "https://dummy"
+                }
+            }
+        }
+    }
+
+    @Test
     fun `feiler hvis eventet ikke er gyldig`() {
 
         val validInstance = SoknadEventBuilder.SoknadOpprettetInstance().apply {

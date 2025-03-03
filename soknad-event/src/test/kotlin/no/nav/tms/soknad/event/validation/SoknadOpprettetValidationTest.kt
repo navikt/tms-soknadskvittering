@@ -267,8 +267,8 @@ class SoknadOpprettetValidationTest {
     }
 
     @Test
-    fun `feiler hvis bruker er avsender av etterspurt vedlegg og link mangler`() {
-        shouldThrow<SoknadskvitteringValidationException> {
+    fun `feiler ikke hvis bruker er avsender av etterspurt vedlegg og link mangler`() {
+        shouldNotThrow<SoknadskvitteringValidationException> {
             validEvent.copy(
                 etterspurteVedlegg = listOf(
                     etterspurtVedlegg(
