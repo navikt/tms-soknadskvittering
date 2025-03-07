@@ -8,10 +8,14 @@ import no.nav.tms.kafka.application.Subscription
 import no.nav.tms.soknad.event.SoknadEvent
 import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.MottattVedlegg
 import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.SoknadsKvittering
+import no.nav.tms.soknadskvittering.historikk.HistorikkAppender
 import no.nav.tms.soknadskvittering.setup.defaultObjectMapper
 import no.nav.tms.soknadskvittering.setup.withMDC
 
-class VedleggMottattSubscriber(private val repository: SoknadsKvitteringRepository): Subscriber() {
+class VedleggMottattSubscriber(
+    private val repository: SoknadsKvitteringRepository,
+    private val historikkAppender: HistorikkAppender
+): Subscriber() {
 
     override fun subscribe() = Subscription.forEvent("vedleggMottatt")
         .withFields(
@@ -44,13 +48,15 @@ class VedleggMottattSubscriber(private val repository: SoknadsKvitteringReposito
             log.warn { "Kan ikke legge til samme vedlegg to ganger" }
 
         } else if (soknadsKvittering.etterspurteVedlegg.any { it.vedleggsId == mottattEvent.vedleggsId }) {
-            log.info { "Legger til mottatt vedlegg for etterspørsel" }
-
             oppdaterVedlegg(soknadsKvittering, mottattEvent)
-        } else {
-            log.info { "Legger til mottatt vedlegg" }
 
+            historikkAppender.vedleggMottatt(mottattEvent)
+            log.info { "La til mottatt vedlegg for etterspørsel" }
+        } else {
             nyttVedlegg(soknadsKvittering, mottattEvent)
+
+            historikkAppender.vedleggMottatt(mottattEvent)
+            log.info { "La til mottatt vedlegg" }
         }
     }
 

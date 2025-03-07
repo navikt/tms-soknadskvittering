@@ -8,11 +8,15 @@ import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.SoknadsKvittering
 import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.MottattVedlegg
 import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.Produsent
 import no.nav.tms.soknadskvittering.aggregation.DatabaseDto.EtterspurtVedlegg
+import no.nav.tms.soknadskvittering.historikk.HistorikkAppender
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper
 import no.nav.tms.soknadskvittering.setup.defaultObjectMapper
 import no.nav.tms.soknadskvittering.setup.withMDC
 
-class SoknadOpprettetSubscriber(private val repository: SoknadsKvitteringRepository): Subscriber() {
+class SoknadOpprettetSubscriber(
+    private val repository: SoknadsKvitteringRepository,
+    private val historikkAppender: HistorikkAppender
+): Subscriber() {
 
     override fun subscribe() = Subscription.forEvent("soknadOpprettet")
         .withFields(
@@ -86,6 +90,7 @@ class SoknadOpprettetSubscriber(private val repository: SoknadsKvitteringReposit
 
         repository.insertSoknadsKvittering(soknadsKvittering).let { wasCreated ->
             if (wasCreated) {
+                historikkAppender.soknadOpprettet(opprettetEvent)
                 log.info { "Opprettet ny soknadskvittering" }
             } else {
                 log.warn { "Ignorerte duplikat soknadskvittering" }

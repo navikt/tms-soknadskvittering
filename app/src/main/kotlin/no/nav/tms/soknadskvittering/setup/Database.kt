@@ -1,5 +1,6 @@
 package no.nav.tms.soknadskvittering.setup
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.zaxxer.hikari.HikariDataSource

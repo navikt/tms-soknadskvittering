@@ -2,8 +2,6 @@ package no.nav.tms.soknadskvittering.setup
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.flywaydb.core.Flyway
-import org.flywaydb.core.api.configuration.FluentConfiguration
-import org.flywaydb.core.internal.info.MigrationInfoDumper
 
 object Flyway {
 

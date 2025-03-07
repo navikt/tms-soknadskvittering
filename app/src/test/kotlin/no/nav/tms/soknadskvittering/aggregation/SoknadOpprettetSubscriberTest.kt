@@ -7,6 +7,10 @@ import kotliquery.queryOf
 import no.nav.tms.kafka.application.MessageBroadcaster
 import no.nav.tms.soknadskvittering.common.LocalPostgresDatabase
 import no.nav.tms.soknadskvittering.common.shouldBeSameTimeAs
+import no.nav.tms.soknadskvittering.historikk.HistorikkAppender
+import no.nav.tms.soknadskvittering.historikk.HistorikkRepository
+import no.nav.tms.soknadskvittering.historikk.firstHistorikkEntry
+import no.nav.tms.soknadskvittering.historikk.getHistorikkEntries
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper.nowAtUtc
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -18,11 +22,14 @@ class SoknadOpprettetSubscriberTest {
     private val database = LocalPostgresDatabase.cleanDb()
     private val repository = SoknadsKvitteringRepository(database)
 
-    private val messageBroadcaster = MessageBroadcaster(SoknadOpprettetSubscriber(repository))
+    private val appender = HistorikkAppender(HistorikkRepository(database))
+
+    private val messageBroadcaster = MessageBroadcaster(SoknadOpprettetSubscriber(repository, appender))
 
     @AfterEach
     fun cleanUp() {
         database.update { queryOf("delete from soknadskvittering") }
+        database.update { queryOf("delete from soknadsevent_historikk") }
     }
 
     @Test
@@ -171,5 +178,29 @@ class SoknadOpprettetSubscriberTest {
             it.beskrivelse.shouldNotBeNull()
             it.linkEttersending.shouldBeNull()
         }
+    }
+
+    @Test
+    fun `legger til hendelse i event-historikk når søknad blir opprettet`() {
+        val soknadsId = UUID.randomUUID().toString()
+        val ident = "12345678900"
+
+        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+
+        database.firstHistorikkEntry(soknadsId, "soknadOpprettet").shouldNotBeNull()
+    }
+
+    @Test
+    fun `legger ikke til hendelse i event-historikk hvis søknad var duplikat`() {
+        val soknadsId = UUID.randomUUID().toString()
+        val ident = "12345678900"
+
+        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+
+        database.getHistorikkEntries(soknadsId, "soknadOpprettet").size shouldBe 1
+
+        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+
+        database.getHistorikkEntries(soknadsId, "soknadOpprettet").size shouldBe 1
     }
 }

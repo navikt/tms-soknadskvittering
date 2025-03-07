@@ -82,19 +82,19 @@ object SoknadEvent {
     }
 
     object Dto {
-        class Produsent(
+        data class Produsent(
             val cluster: String,
             val namespace: String,
             val appnavn: String
         )
 
-        class MottattVedlegg(
+        data class MottattVedlegg(
             val vedleggsId: String,
             val tittel: String,
             val linkVedlegg: String?
         )
 
-        class EtterspurtVedlegg(
+        data class EtterspurtVedlegg(
             val vedleggsId: String,
             val brukerErAvsender: Boolean,
             val tittel: String,
