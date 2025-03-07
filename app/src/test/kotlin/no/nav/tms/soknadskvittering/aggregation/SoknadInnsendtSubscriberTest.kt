@@ -181,6 +181,22 @@ class SoknadInnsendtSubscriberTest {
     }
 
     @Test
+    fun `godtar legacy-event soknadOpprettet`() {
+        val soknadsId = UUID.randomUUID().toString()
+        val ident = "12345678900"
+
+        innsendtEvent(
+            soknadsId,
+            ident,
+            eventName = "soknadOpprettet"
+        ).let { messageBroadcaster.broadcastJson(it) }
+
+
+        val kvittering = repository.getSoknadsKvittering(soknadsId)
+        kvittering.shouldNotBeNull()
+    }
+
+    @Test
     fun `legger til hendelse i event-historikk når søknad blir opprettet`() {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
