@@ -172,4 +172,20 @@ class SoknadInnsendtSubscriberTest {
             it.linkEttersending.shouldBeNull()
         }
     }
+
+    @Test
+    fun `godtar legacy-event soknadOpprettet`() {
+        val soknadsId = UUID.randomUUID().toString()
+        val ident = "12345678900"
+
+        innsendtEvent(
+            soknadsId,
+            ident,
+            eventName = "soknadOpprettet"
+        ).let { messageBroadcaster.broadcastJson(it) }
+
+
+        val kvittering = repository.getSoknadsKvittering(soknadsId)
+        kvittering.shouldNotBeNull()
+    }
 }
