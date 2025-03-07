@@ -36,6 +36,7 @@ class VedleggMottattBuilderTest {
             vedleggsId = "vedlegg-1"
             tittel = "Vedlegg som er mottatt"
             linkVedlegg = "https://link.til.vedlegg"
+            journalpostId = "456123"
             tidspunktMottatt = ZonedDateTime.parse("2025-02-01T10:00:00Z")
             produsent = SoknadEvent.Dto.Produsent("cluster", "namespace", "app")
         }
@@ -47,6 +48,7 @@ class VedleggMottattBuilderTest {
             json["vedleggsId"].asText() shouldBe "vedlegg-1"
             json["tittel"].asText() shouldBe "Vedlegg som er mottatt"
             json["linkVedlegg"].asText() shouldBe "https://link.til.vedlegg"
+            json["journalpostId"].asText() shouldBe "456123"
             json["tidspunktMottatt"].asText() shouldBe "2025-02-01T10:00:00Z"
 
             json["produsent"].let {
@@ -120,7 +122,10 @@ class VedleggMottattBuilderTest {
         }
 
         shouldNotThrowAny {
-            SoknadEventBuilder.vedleggMottatt(validInstance) { linkVedlegg = null }
+            SoknadEventBuilder.vedleggMottatt(validInstance) {
+                linkVedlegg = null
+                journalpostId = null
+            }
         }
 
         shouldThrow<SoknadskvitteringValidationException> {

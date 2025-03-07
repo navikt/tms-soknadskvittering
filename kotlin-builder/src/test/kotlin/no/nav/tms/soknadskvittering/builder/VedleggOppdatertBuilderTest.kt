@@ -34,6 +34,7 @@ class VedleggOppdatertBuilderTest {
             soknadsId = testSoknadsId
             vedleggsId = "vedlegg-1"
             linkVedlegg = "https://ny.link.til.vedlegg"
+            journalpostId = "456123"
             produsent = SoknadEvent.Dto.Produsent("cluster", "namespace", "app")
         }
 
@@ -42,6 +43,7 @@ class VedleggOppdatertBuilderTest {
             json["soknadsId"].asText() shouldBe testSoknadsId
             json["vedleggsId"].asText() shouldBe "vedlegg-1"
             json["linkVedlegg"].asText() shouldBe "https://ny.link.til.vedlegg"
+            json["journalpostId"].asText() shouldBe "456123"
 
             json["produsent"].let {
                 it["cluster"].asText() shouldBe "cluster"
@@ -105,7 +107,10 @@ class VedleggOppdatertBuilderTest {
         }
 
         shouldNotThrowAny {
-            SoknadEventBuilder.vedleggOppdatert(validInstance) { linkVedlegg = null }
+            SoknadEventBuilder.vedleggOppdatert(validInstance) {
+                linkVedlegg = null
+                journalpostId = null
+            }
         }
 
         shouldThrow<SoknadskvitteringValidationException> {

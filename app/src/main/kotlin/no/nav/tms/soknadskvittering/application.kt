@@ -18,7 +18,7 @@ fun main() {
         }
 
         subscribers(
-            SoknadOpprettetSubscriber(repository),
+            SoknadInnsendtSubscriber(repository),
             SoknadOppdatertSubscriber(repository),
             SoknadFerdigstiltSubscriber(repository),
             VedleggEtterspurtSubscriber(repository),

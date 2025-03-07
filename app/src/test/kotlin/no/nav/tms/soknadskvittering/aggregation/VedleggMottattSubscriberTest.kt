@@ -14,7 +14,7 @@ class VedleggMottattSubscriberTest {
     private val repository = SoknadsKvitteringRepository(database)
 
     private val messageBroadcaster = MessageBroadcaster(
-        SoknadOpprettetSubscriber(repository),
+        SoknadInnsendtSubscriber(repository),
         VedleggMottattSubscriber(repository)
     )
 
@@ -23,13 +23,14 @@ class VedleggMottattSubscriberTest {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        opprettetEvent(soknadsId, ident).let {
+        innsendtEvent(soknadsId, ident).let {
             messageBroadcaster.broadcastJson(it)
         }
 
         val vedleggsId = "vedlegg-1"
         val tittel = "Vedlegg om ett eller annet"
         val linkVedlegg = "https://link.til.vedlegg"
+        val journalpostId = "789456"
         val brukerErAvsender = true
         val tidspunktMottatt = ZonedDateTimeHelper.nowAtUtc()
 
@@ -39,6 +40,7 @@ class VedleggMottattSubscriberTest {
             vedleggsId = vedleggsId,
             tittel = tittel,
             linkVedlegg = linkVedlegg,
+            journalpostId = journalpostId,
             brukerErAvsender = brukerErAvsender,
             tidspunktMottatt = tidspunktMottatt
         ).let { messageBroadcaster.broadcastJson(it) }
@@ -50,6 +52,7 @@ class VedleggMottattSubscriberTest {
         kvittering.mottatteVedlegg.first { it.vedleggsId == vedleggsId }.let {
             it.tittel shouldBe tittel
             it.linkVedlegg shouldBe linkVedlegg
+            it.journalpostId shouldBe journalpostId
             it.brukerErAvsender shouldBe brukerErAvsender
             it.tidspunktMottatt shouldBe tidspunktMottatt
         }
@@ -62,7 +65,7 @@ class VedleggMottattSubscriberTest {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        opprettetEvent(
+        innsendtEvent(
             soknadsId,
             ident,
             etterspurteVedlegg = listOf(
@@ -91,7 +94,7 @@ class VedleggMottattSubscriberTest {
 
         val mottatt = ZonedDateTimeHelper.nowAtUtc().plusHours(1)
 
-        opprettetEvent(
+        innsendtEvent(
             soknadsId,
             ident,
             mottatteVedlegg = listOf(

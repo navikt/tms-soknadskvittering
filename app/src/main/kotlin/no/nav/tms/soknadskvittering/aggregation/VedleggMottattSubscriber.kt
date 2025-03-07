@@ -24,6 +24,7 @@ class VedleggMottattSubscriber(private val repository: SoknadsKvitteringReposito
         )
         .withOptionalFields(
             "linkVedlegg",
+            "journalpostId",
             "metadata"
         )
 
@@ -65,6 +66,7 @@ class VedleggMottattSubscriber(private val repository: SoknadsKvitteringReposito
             brukerErAvsender = mottattEvent.brukerErAvsender,
             tittel = mottattEvent.tittel,
             linkVedlegg = mottattEvent.linkVedlegg,
+            journalpostId = mottattEvent.journalpostId,
             tidspunktMottatt = mottattEvent.tidspunktMottatt
         )
 
@@ -84,6 +86,7 @@ class VedleggMottattSubscriber(private val repository: SoknadsKvitteringReposito
             brukerErAvsender = mottattEvent.brukerErAvsender,
             tittel = mottattEvent.tittel,
             linkVedlegg = mottattEvent.linkVedlegg,
+            journalpostId = mottattEvent.journalpostId,
             tidspunktMottatt = mottattEvent.tidspunktMottatt
         ).let {
             repository.oppdaterMottatteVedlegg(soknadsKvittering.soknadsId, soknadsKvittering.mottatteVedlegg + it)

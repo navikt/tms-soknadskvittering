@@ -15,7 +15,7 @@ class VedleggEtterspurtSubscriberTest {
     private val repository = SoknadsKvitteringRepository(database)
 
     private val messageBroadcaster = MessageBroadcaster(
-        SoknadOpprettetSubscriber(repository),
+        SoknadInnsendtSubscriber(repository),
         VedleggEtterspurtSubscriber(repository)
     )
 
@@ -24,7 +24,7 @@ class VedleggEtterspurtSubscriberTest {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        opprettetEvent(soknadsId, ident).let {
+        innsendtEvent(soknadsId, ident).let {
             messageBroadcaster.broadcastJson(it)
         }
 
@@ -93,7 +93,7 @@ class VedleggEtterspurtSubscriberTest {
 
         val etterspurt = nowAtUtc().plusHours(1)
 
-        opprettetEvent(
+        innsendtEvent(
             soknadsId,
             ident,
             etterspurteVedlegg = listOf(
@@ -119,7 +119,7 @@ class VedleggEtterspurtSubscriberTest {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        opprettetEvent(
+        innsendtEvent(
             soknadsId,
             ident,
             mottatteVedlegg = listOf(

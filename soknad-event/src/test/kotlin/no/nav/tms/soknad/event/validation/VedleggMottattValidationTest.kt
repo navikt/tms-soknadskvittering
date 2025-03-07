@@ -75,12 +75,24 @@ class VedleggMottattValidationTest {
         }
     }
 
+    @Test
+    fun `feiler hvis journalpostId er for lang`() {
+        shouldThrow<SoknadskvitteringValidationException> {
+            validEvent.copy(
+                journalpostId = "${text10Chars.repeat(2)}+"
+            ).let {
+                VedleggMottattValidation.validate(it)
+            }
+        }
+    }
+
     private fun vedleggMottatt() = SoknadEvent.VedleggMottatt(
         soknadsId = UUID.randomUUID().toString(),
         vedleggsId = "vedlegg-1",
         tittel = "Tittel på vedlegg",
         brukerErAvsender = true,
         linkVedlegg = "https://link.til.vedlegg",
+        journalpostId = "123456",
         tidspunktMottatt = ZonedDateTime.now(),
         produsent = SoknadEvent.Dto.Produsent("dev", "team", "app"),
         metadata = mapOf("meta" to "data"),

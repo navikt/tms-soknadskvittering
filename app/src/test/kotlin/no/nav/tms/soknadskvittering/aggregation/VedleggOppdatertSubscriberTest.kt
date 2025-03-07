@@ -15,7 +15,7 @@ class VedleggOppdatertSubscriberTest {
     private val repository = SoknadsKvitteringRepository(database)
 
     private val messageBroadcaster = MessageBroadcaster(
-        SoknadOpprettetSubscriber(repository),
+        SoknadInnsendtSubscriber(repository),
         VedleggOppdatertSubscriber(repository)
     )
 
@@ -28,7 +28,7 @@ class VedleggOppdatertSubscriberTest {
 
         val vedleggJson = mottattVedleggJson(vedleggsId = vedleggsId, linkVedlegg = null)
 
-        opprettetEvent(soknadsId, ident, mottatteVedlegg = listOf(vedleggJson)).let {
+        innsendtEvent(soknadsId, ident = ident, mottatteVedlegg = listOf(vedleggJson)).let {
             messageBroadcaster.broadcastJson(it)
         }
 
@@ -52,25 +52,31 @@ class VedleggOppdatertSubscriberTest {
     }
 
     @Test
-    fun `tillater overskriving av eksisterende lenke med annen lenke`() {
+    fun `tillater overskriving av eksisterende data med annen data`() {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
         val vedleggsId = "vedlegg-1"
         val gammelLink = "https://gammel.link.til.vedlegg"
+        val gammelJournallpostId = "123456"
 
-        val vedleggJson = mottattVedleggJson(vedleggsId = vedleggsId, linkVedlegg = gammelLink)
+        val vedleggJson = mottattVedleggJson(
+            vedleggsId = vedleggsId, linkVedlegg = gammelLink, journalpostId =  gammelJournallpostId
+        )
 
-        opprettetEvent(soknadsId, ident, mottatteVedlegg = listOf(vedleggJson)).let {
+        innsendtEvent(soknadsId, ident = ident, mottatteVedlegg = listOf(vedleggJson)).let {
             messageBroadcaster.broadcastJson(it)
         }
 
         val nyLink = "https://ny.link.til.vedlegg"
+        val nyJournalpostId = "789456"
 
         vedleggOppdatertEvent(
             soknadsId = soknadsId,
             vedleggsId = vedleggsId,
-            linkVedlegg = nyLink
+            linkVedlegg = nyLink,
+            journalpostId = nyJournalpostId
+
         ).let { messageBroadcaster.broadcastJson(it) }
 
         val kvittering = repository.getSoknadsKvittering(soknadsId)
@@ -81,6 +87,8 @@ class VedleggOppdatertSubscriberTest {
         kvittering.mottatteVedlegg.first { it.vedleggsId == vedleggsId }.let {
             it.linkVedlegg shouldNotBe gammelLink
             it.linkVedlegg shouldBe nyLink
+            it.journalpostId shouldNotBe gammelJournallpostId
+            it.journalpostId shouldBe nyJournalpostId
         }
     }
 
@@ -94,7 +102,7 @@ class VedleggOppdatertSubscriberTest {
 
         val vedleggJson = mottattVedleggJson(vedleggsId = vedleggsId, linkVedlegg = gammelLink)
 
-        opprettetEvent(soknadsId, ident, mottatteVedlegg = listOf(vedleggJson)).let {
+        innsendtEvent(soknadsId, ident = ident, mottatteVedlegg = listOf(vedleggJson)).let {
             messageBroadcaster.broadcastJson(it)
         }
 
@@ -127,7 +135,7 @@ class VedleggOppdatertSubscriberTest {
 
         val vedleggJson = etterspurtVedleggJson(vedleggsId = vedleggsId, linkEttersending = gammelLink)
 
-        opprettetEvent(soknadsId, ident, etterspurteVedlegg = listOf(vedleggJson)).let {
+        innsendtEvent(soknadsId, ident = ident, etterspurteVedlegg = listOf(vedleggJson)).let {
             messageBroadcaster.broadcastJson(it)
         }
 
@@ -178,7 +186,7 @@ class VedleggOppdatertSubscriberTest {
 
         val vedleggJson = mottattVedleggJson(vedleggsId = vedleggsId1, linkVedlegg = null)
 
-        opprettetEvent(soknadsId, ident, mottatteVedlegg = listOf(vedleggJson)).let {
+        innsendtEvent(soknadsId, ident = ident, mottatteVedlegg = listOf(vedleggJson)).let {
             messageBroadcaster.broadcastJson(it)
         }
 

@@ -16,7 +16,7 @@ class SoknadOppdatertSubscriberTest {
     private val repository = SoknadsKvitteringRepository(database)
 
     private val messageBroadcaster = MessageBroadcaster(
-        SoknadOpprettetSubscriber(repository),
+        SoknadInnsendtSubscriber(repository),
         SoknadOppdatertSubscriber(repository)
     )
 
@@ -34,7 +34,7 @@ class SoknadOppdatertSubscriberTest {
         val originalLinkSoknad = null
         val originalJournalpostId = null
 
-        opprettetEvent(
+        innsendtEvent(
             soknadsId,
             ident,
             fristEttersending = originalFristEttersending,
@@ -76,7 +76,7 @@ class SoknadOppdatertSubscriberTest {
         val endeligLink = "https://en.link"
         val endeligJournalpostId = "journalpost-1"
 
-        opprettetEvent(
+        innsendtEvent(
             soknadsId,
             ident,
             linkSoknad = null,

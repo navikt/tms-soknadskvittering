@@ -13,12 +13,12 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.UUID
 
-class SoknadOpprettetSubscriberTest {
+class SoknadInnsendtSubscriberTest {
 
     private val database = LocalPostgresDatabase.cleanDb()
     private val repository = SoknadsKvitteringRepository(database)
 
-    private val messageBroadcaster = MessageBroadcaster(SoknadOpprettetSubscriber(repository))
+    private val messageBroadcaster = MessageBroadcaster(SoknadInnsendtSubscriber(repository))
 
     @AfterEach
     fun cleanUp() {
@@ -48,7 +48,7 @@ class SoknadOpprettetSubscriberTest {
         val etterspurtVedleggBeskrivelse = "Noen andre må gjøre noe på dine vegne. Bla bla bla.."
         val etterspurtVedleggLinkEttersending = null
 
-        val event = opprettetEvent(
+        val event = innsendtEvent(
             soknadsId = soknadsId,
             ident = ident,
             tittel = tittel,
@@ -118,8 +118,8 @@ class SoknadOpprettetSubscriberTest {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        val event1 = opprettetEvent(soknadsId, ident, tittel = "En soknad")
-        val event2 = opprettetEvent(soknadsId, ident, tittel = "En annen soknad")
+        val event1 = innsendtEvent(soknadsId, ident, tittel = "En soknad")
+        val event2 = innsendtEvent(soknadsId, ident, tittel = "En annen soknad")
 
         messageBroadcaster.broadcastJson(event1)
         messageBroadcaster.broadcastJson(event2)
@@ -152,7 +152,7 @@ class SoknadOpprettetSubscriberTest {
         }
         """
 
-        opprettetEvent(
+        innsendtEvent(
             soknadsId,
             ident,
             etterspurteVedlegg = listOf(feltErNull, feltMangler)

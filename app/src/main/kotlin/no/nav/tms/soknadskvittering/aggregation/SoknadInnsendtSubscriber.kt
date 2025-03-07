@@ -12,9 +12,9 @@ import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper
 import no.nav.tms.soknadskvittering.setup.defaultObjectMapper
 import no.nav.tms.soknadskvittering.setup.withMDC
 
-class SoknadOpprettetSubscriber(private val repository: SoknadsKvitteringRepository): Subscriber() {
+class SoknadInnsendtSubscriber(private val repository: SoknadsKvitteringRepository): Subscriber() {
 
-    override fun subscribe() = Subscription.forEvent("soknadOpprettet")
+    override fun subscribe() = Subscription.forEvents("soknadOpprettet", "soknadInnsendt")
         .withFields(
             "soknadsId",
             "ident",
@@ -38,47 +38,48 @@ class SoknadOpprettetSubscriber(private val repository: SoknadsKvitteringReposit
     private val objectMapper = defaultObjectMapper()
 
     override suspend fun receive(jsonMessage: JsonMessage) = withMDC(jsonMessage) {
-        val opprettetEvent: SoknadEvent.SoknadOpprettet = objectMapper.treeToValue(jsonMessage.json)
+        val innsendtEvent: SoknadEvent.SoknadInnsendt = objectMapper.treeToValue(jsonMessage.json)
 
-        val mottatteVedlegg = opprettetEvent.mottatteVedlegg.map {
+        val mottatteVedlegg = innsendtEvent.mottatteVedlegg.map {
             MottattVedlegg(
                 erEttersending = false,
                 vedleggsId = it.vedleggsId,
                 tittel = it.tittel,
                 linkVedlegg = it.linkVedlegg,
+                journalpostId = it.journalpostId,
                 brukerErAvsender = true,
-                tidspunktMottatt = opprettetEvent.tidspunktMottatt
+                tidspunktMottatt = innsendtEvent.tidspunktMottatt
             )
         }
 
-        val etterspurteVedlegg = opprettetEvent.etterspurteVedlegg.map {
+        val etterspurteVedlegg = innsendtEvent.etterspurteVedlegg.map {
             EtterspurtVedlegg(
                 vedleggsId = it.vedleggsId,
                 brukerErAvsender = it.brukerErAvsender,
                 tittel = it.tittel,
                 linkEttersending = it.linkEttersending,
                 beskrivelse = it.beskrivelse,
-                tidspunktEtterspurt = opprettetEvent.tidspunktMottatt,
+                tidspunktEtterspurt = innsendtEvent.tidspunktMottatt,
                 erMottatt = false
             )
         }
 
         val soknadsKvittering = SoknadsKvittering(
-            soknadsId = opprettetEvent.soknadsId,
-            ident = opprettetEvent.ident,
-            tittel = opprettetEvent.tittel,
-            temakode = opprettetEvent.temakode,
-            skjemanummer = opprettetEvent.skjemanummer,
-            tidspunktMottatt = opprettetEvent.tidspunktMottatt,
-            fristEttersending = opprettetEvent.fristEttersending,
-            linkSoknad = opprettetEvent.linkSoknad,
-            journalpostId = opprettetEvent.journalpostId,
+            soknadsId = innsendtEvent.soknadsId,
+            ident = innsendtEvent.ident,
+            tittel = innsendtEvent.tittel,
+            temakode = innsendtEvent.temakode,
+            skjemanummer = innsendtEvent.skjemanummer,
+            tidspunktMottatt = innsendtEvent.tidspunktMottatt,
+            fristEttersending = innsendtEvent.fristEttersending,
+            linkSoknad = innsendtEvent.linkSoknad,
+            journalpostId = innsendtEvent.journalpostId,
             mottatteVedlegg = mottatteVedlegg,
             etterspurteVedlegg = etterspurteVedlegg,
             produsent = Produsent(
-                cluster = opprettetEvent.produsent.cluster,
-                namespace = opprettetEvent.produsent.namespace,
-                appnavn = opprettetEvent.produsent.appnavn
+                cluster = innsendtEvent.produsent.cluster,
+                namespace = innsendtEvent.produsent.namespace,
+                appnavn = innsendtEvent.produsent.appnavn
             ),
             opprettet = ZonedDateTimeHelper.nowAtUtc(),
             ferdigstilt = null
@@ -86,7 +87,7 @@ class SoknadOpprettetSubscriber(private val repository: SoknadsKvitteringReposit
 
         repository.insertSoknadsKvittering(soknadsKvittering).let { wasCreated ->
             if (wasCreated) {
-                log.info { "Opprettet ny soknadskvittering" }
+                log.info { "Opprettet kvittering for innsendt søknad" }
             } else {
                 log.warn { "Ignorerte duplikat soknadskvittering" }
             }
