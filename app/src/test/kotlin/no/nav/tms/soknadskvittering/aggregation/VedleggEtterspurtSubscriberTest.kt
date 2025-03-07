@@ -21,7 +21,7 @@ class VedleggEtterspurtSubscriberTest {
     private val appender = HistorikkAppender(HistorikkRepository(database))
 
     private val messageBroadcaster = MessageBroadcaster(
-        SoknadOpprettetSubscriber(repository, appender),
+        SoknadInnsendtSubscriber(repository, appender),
         VedleggEtterspurtSubscriber(repository, appender)
     )
 
@@ -30,7 +30,7 @@ class VedleggEtterspurtSubscriberTest {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        opprettetEvent(soknadsId, ident).let {
+        innsendtEvent(soknadsId, ident).let {
             messageBroadcaster.broadcastJson(it)
         }
 
@@ -99,7 +99,7 @@ class VedleggEtterspurtSubscriberTest {
 
         val etterspurt = nowAtUtc().plusHours(1)
 
-        opprettetEvent(
+        innsendtEvent(
             soknadsId,
             ident,
             etterspurteVedlegg = listOf(
@@ -125,7 +125,7 @@ class VedleggEtterspurtSubscriberTest {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        opprettetEvent(
+        innsendtEvent(
             soknadsId,
             ident,
             mottatteVedlegg = listOf(

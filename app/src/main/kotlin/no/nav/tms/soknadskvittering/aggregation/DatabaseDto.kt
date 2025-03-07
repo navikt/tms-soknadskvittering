@@ -27,6 +27,7 @@ object DatabaseDto {
         val erEttersending: Boolean,
         val tittel: String,
         val linkVedlegg: String?,
+        val journalpostId: String?,
         val tidspunktMottatt: ZonedDateTime
     )
 

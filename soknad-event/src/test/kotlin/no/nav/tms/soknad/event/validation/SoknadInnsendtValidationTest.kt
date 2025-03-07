@@ -7,16 +7,16 @@ import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
 
-class SoknadOpprettetValidationTest {
+class SoknadInnsendtValidationTest {
 
-    private val validEvent = soknadOpprettet()
+    private val validEvent = soknadInnsendt()
 
     private val text10Chars = "Laaaaaaang"
 
     @Test
-    fun `godkjenner gyldig opprettet-event`() {
+    fun `godkjenner gyldig innsendt-event`() {
         shouldNotThrow<SoknadskvitteringValidationException> {
-            SoknadOpprettetValidation.validate(validEvent)
+            SoknadInnsendtValidation.validate(validEvent)
         }
     }
 
@@ -26,7 +26,7 @@ class SoknadOpprettetValidationTest {
             validEvent.copy(
                 soknadsId = "badId"
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -37,7 +37,7 @@ class SoknadOpprettetValidationTest {
             validEvent.copy(
                 ident = "badIdent"
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -48,7 +48,7 @@ class SoknadOpprettetValidationTest {
             validEvent.copy(
                 tittel = "${text10Chars.repeat(8)}+"
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -59,7 +59,7 @@ class SoknadOpprettetValidationTest {
             validEvent.copy(
                 temakode = "LANG"
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -70,7 +70,7 @@ class SoknadOpprettetValidationTest {
             validEvent.copy(
                 skjemanummer = "${text10Chars.repeat(4)}+"
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -81,7 +81,7 @@ class SoknadOpprettetValidationTest {
             validEvent.copy(
                 journalpostId = "${text10Chars.repeat(2)}+"
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -92,7 +92,7 @@ class SoknadOpprettetValidationTest {
             validEvent.copy(
                 linkSoknad = "badLink"
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -103,7 +103,7 @@ class SoknadOpprettetValidationTest {
             validEvent.copy(
                 linkSoknad = "https://${text10Chars.repeat(20)}"
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -118,7 +118,7 @@ class SoknadOpprettetValidationTest {
                     )
                 )
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -136,7 +136,7 @@ class SoknadOpprettetValidationTest {
                     )
                 )
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -156,7 +156,7 @@ class SoknadOpprettetValidationTest {
                     )
                 )
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -171,7 +171,7 @@ class SoknadOpprettetValidationTest {
                     )
                 )
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -186,7 +186,7 @@ class SoknadOpprettetValidationTest {
                     )
                 )
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -201,7 +201,22 @@ class SoknadOpprettetValidationTest {
                     )
                 )
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
+            }
+        }
+    }
+
+    @Test
+    fun `feiler hvis mottatt vedleggs journalpostId er for lang`() {
+        shouldThrow<SoknadskvitteringValidationException> {
+            validEvent.copy(
+                mottatteVedlegg = listOf(
+                    mottattVedlegg(
+                        journalpostId = "${text10Chars.repeat(2)}+"
+                    )
+                )
+            ).let {
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -216,7 +231,7 @@ class SoknadOpprettetValidationTest {
                     )
                 )
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -231,7 +246,7 @@ class SoknadOpprettetValidationTest {
                     )
                 )
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -246,7 +261,7 @@ class SoknadOpprettetValidationTest {
                     )
                 )
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -261,7 +276,7 @@ class SoknadOpprettetValidationTest {
                     )
                 )
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
@@ -277,13 +292,13 @@ class SoknadOpprettetValidationTest {
                     )
                 )
             ).let {
-                SoknadOpprettetValidation.validate(it)
+                SoknadInnsendtValidation.validate(it)
             }
         }
     }
 
 
-    private fun soknadOpprettet() = SoknadEvent.SoknadOpprettet(
+    private fun soknadInnsendt() = SoknadEvent.SoknadInnsendt(
         soknadsId = UUID.randomUUID().toString(),
         ident = "01234567890",
         tittel = "Tittel på søknad",
@@ -302,11 +317,13 @@ class SoknadOpprettetValidationTest {
     fun mottattVedlegg(
         vedleggsId: String = "vedlegg-1",
         tittel: String = "Tittel på vedlegg",
-        linkVedlegg: String? = "https://link.til.vedlegg"
+        linkVedlegg: String? = "https://link.til.vedlegg",
+        journalpostId: String? = "123456"
     ) = SoknadEvent.Dto.MottattVedlegg(
         vedleggsId = vedleggsId,
         tittel = tittel,
-        linkVedlegg = linkVedlegg
+        linkVedlegg = linkVedlegg,
+        journalpostId = journalpostId
     )
 
     fun etterspurtVedlegg(

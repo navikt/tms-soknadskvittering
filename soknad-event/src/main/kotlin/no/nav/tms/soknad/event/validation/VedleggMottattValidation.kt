@@ -8,7 +8,8 @@ object VedleggMottattValidation {
     private val validators: List<VedleggMottattValidator> = listOf(
         VedleggsIdLengthValidator,
         TittelValidator,
-        LinkVedleggValidator
+        LinkVedleggValidator,
+        JournalpostIdLengthValidator
     )
 
     fun validate(vedleggMottatt: VedleggMottatt) = validators.validate(vedleggMottatt)
@@ -32,6 +33,16 @@ object VedleggMottattValidation {
 
         override fun validate(event: VedleggMottatt) = assertTrue {
             validator.validate(event.vedleggsId)
+        }
+    }
+
+    private object JournalpostIdLengthValidator: VedleggMottattValidator {
+        private val validator = TextLengthValidator("JournalpostId", 20)
+
+        override val description = validator.description
+
+        override fun validate(event: VedleggMottatt) = assertTrue {
+            validator.validate(event.journalpostId)
         }
     }
 

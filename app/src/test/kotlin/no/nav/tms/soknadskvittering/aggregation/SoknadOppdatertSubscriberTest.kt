@@ -22,7 +22,7 @@ class SoknadOppdatertSubscriberTest {
     private val appender = HistorikkAppender(HistorikkRepository(database))
 
     private val messageBroadcaster = MessageBroadcaster(
-        SoknadOpprettetSubscriber(repository, appender),
+        SoknadInnsendtSubscriber(repository, appender),
         SoknadOppdatertSubscriber(repository, appender)
     )
 
@@ -41,7 +41,7 @@ class SoknadOppdatertSubscriberTest {
         val originalLinkSoknad = null
         val originalJournalpostId = null
 
-        opprettetEvent(
+        innsendtEvent(
             soknadsId,
             ident,
             fristEttersending = originalFristEttersending,
@@ -83,7 +83,7 @@ class SoknadOppdatertSubscriberTest {
         val endeligLink = "https://en.link"
         val endeligJournalpostId = "journalpost-1"
 
-        opprettetEvent(
+        innsendtEvent(
             soknadsId,
             ident,
             linkSoknad = null,

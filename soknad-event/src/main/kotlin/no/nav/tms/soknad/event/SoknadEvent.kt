@@ -5,9 +5,9 @@ import java.time.LocalDate
 import java.time.ZonedDateTime
 
 object SoknadEvent {
-    const val version = "v0.1.1"
+    const val version = "v0.2.0"
 
-    data class SoknadOpprettet(
+    data class SoknadInnsendt(
         val soknadsId: String,
         val ident: String,
         val tittel: String,
@@ -22,7 +22,7 @@ object SoknadEvent {
         val produsent: Dto.Produsent,
         val metadata: Map<String, Any>?
     ) {
-        @JsonProperty("@event_name") val eventName = "soknadOpprettet"
+        @JsonProperty("@event_name") val eventName = "soknadInnsendt"
     }
 
     data class SoknadOppdatert(
@@ -62,6 +62,7 @@ object SoknadEvent {
         val soknadsId: String,
         val vedleggsId: String,
         val tittel: String,
+        val journalpostId: String?,
         val linkVedlegg: String?,
         val brukerErAvsender: Boolean,
         val tidspunktMottatt: ZonedDateTime,
@@ -74,6 +75,7 @@ object SoknadEvent {
     data class VedleggOppdatert(
         val soknadsId: String,
         val vedleggsId: String,
+        val journalpostId: String?,
         val linkVedlegg: String?,
         val produsent: Dto.Produsent,
         val metadata: Map<String, Any>?
@@ -91,7 +93,8 @@ object SoknadEvent {
         data class MottattVedlegg(
             val vedleggsId: String,
             val tittel: String,
-            val linkVedlegg: String?
+            val linkVedlegg: String?,
+            val journalpostId: String?
         )
 
         data class EtterspurtVedlegg(
