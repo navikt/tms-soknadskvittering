@@ -21,6 +21,7 @@ object ApiDto {
         val tidspunktMottatt: ZonedDateTime,
         val fristEttersending: LocalDate,
         val linkSoknad: String?,
+        val linkEttersending: String?,
         val journalpostId: String?,
         val mottatteVedlegg: List<MottattVedlegg>,
         val manglendeVedlegg: List<ManglendeVedlegg>,
@@ -42,6 +43,7 @@ object ApiDto {
         val erEttersending: Boolean,
         val tittel: String,
         val linkVedlegg: String?,
+        val journalpostId: String?,
         val tidspunktMottatt: ZonedDateTime
     )
 
@@ -53,6 +55,7 @@ object ApiDto {
         tidspunktMottatt = kvittering.tidspunktMottatt,
         fristEttersending = kvittering.fristEttersending,
         linkSoknad = kvittering.linkSoknad,
+        linkEttersending = kvittering.linkEttersending,
         journalpostId = kvittering.journalpostId,
         mottatteVedlegg = kvittering.mottatteVedlegg
             .map(::mottattVedlegg),
@@ -85,6 +88,7 @@ object ApiDto {
         erEttersending = vedlegg.erEttersending,
         tittel = vedlegg.tittel,
         linkVedlegg = vedlegg.linkVedlegg,
+        journalpostId = vedlegg.journalpostId,
         tidspunktMottatt = vedlegg.tidspunktMottatt
     )
 }
