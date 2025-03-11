@@ -98,10 +98,32 @@ class SoknadInnsendtValidationTest {
     }
 
     @Test
-    fun `feiler hvis link er for lang`() {
+    fun `feiler hvis link til søknad er for lang`() {
         shouldThrow<SoknadskvitteringValidationException> {
             validEvent.copy(
                 linkSoknad = "https://${text10Chars.repeat(20)}"
+            ).let {
+                SoknadInnsendtValidation.validate(it)
+            }
+        }
+    }
+
+    @Test
+    fun `feiler hvis link til ettersending er ugyldig`() {
+        shouldThrow<SoknadskvitteringValidationException> {
+            validEvent.copy(
+                linkEttersending = "badLink"
+            ).let {
+                SoknadInnsendtValidation.validate(it)
+            }
+        }
+    }
+
+    @Test
+    fun `feiler hvis link til ettersending er for lang`() {
+        shouldThrow<SoknadskvitteringValidationException> {
+            validEvent.copy(
+                linkEttersending = "https://${text10Chars.repeat(20)}"
             ).let {
                 SoknadInnsendtValidation.validate(it)
             }
@@ -307,6 +329,7 @@ class SoknadInnsendtValidationTest {
         tidspunktMottatt = ZonedDateTime.now(),
         fristEttersending = LocalDate.now().plusDays(14),
         linkSoknad = "https://link.til.soknad",
+        linkEttersending = "https://link.til.ettersending",
         journalpostId = "123456",
         mottatteVedlegg = listOf(mottattVedlegg()),
         etterspurteVedlegg = listOf(etterspurtVedlegg()),

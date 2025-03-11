@@ -142,7 +142,7 @@ class VedleggMottattSubscriberTest {
         val vedleggsId = "nytt-vedlegg"
         val ident = "12345678900"
 
-        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
         vedleggMottattEvent(soknadsId, vedleggsId).let { messageBroadcaster.broadcastJson(it) }
 
         database.firstHistorikkEntry(soknadsId, "vedleggMottatt").shouldNotBeNull()
@@ -156,7 +156,7 @@ class VedleggMottattSubscriberTest {
 
         val vedlegg = mottattVedleggJson(vedleggsId)
 
-        opprettetEvent(soknadsId, ident, mottatteVedlegg = listOf(vedlegg)).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident, mottatteVedlegg = listOf(vedlegg)).let { messageBroadcaster.broadcastJson(it) }
         vedleggMottattEvent(soknadsId, vedleggsId).let { messageBroadcaster.broadcastJson(it) }
 
         database.firstHistorikkEntry(soknadsId, "vedleggMottatt").shouldBeNull()

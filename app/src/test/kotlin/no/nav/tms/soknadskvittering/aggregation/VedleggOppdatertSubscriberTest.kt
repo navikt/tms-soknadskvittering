@@ -221,7 +221,7 @@ class VedleggOppdatertSubscriberTest {
 
         val vedlegg = mottattVedleggJson(vedleggsId, linkVedlegg = null)
 
-        opprettetEvent(soknadsId, ident, mottatteVedlegg = listOf(vedlegg)).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident, mottatteVedlegg = listOf(vedlegg)).let { messageBroadcaster.broadcastJson(it) }
         vedleggOppdatertEvent(soknadsId, vedleggsId, linkVedlegg = "https://ny.link").let { messageBroadcaster.broadcastJson(it) }
 
         database.firstHistorikkEntry(soknadsId, "vedleggOppdatert").shouldNotBeNull()
@@ -235,7 +235,7 @@ class VedleggOppdatertSubscriberTest {
 
         val vedlegg = mottattVedleggJson(vedleggsId)
 
-        opprettetEvent(soknadsId, ident, mottatteVedlegg = listOf(vedlegg)).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident, mottatteVedlegg = listOf(vedlegg)).let { messageBroadcaster.broadcastJson(it) }
         vedleggOppdatertEvent(soknadsId, vedleggsId, linkVedlegg = null).let { messageBroadcaster.broadcastJson(it) }
 
         database.firstHistorikkEntry(soknadsId, "vedleggOppdatert").shouldBeNull()
@@ -247,7 +247,7 @@ class VedleggOppdatertSubscriberTest {
         val vedleggsId = "finnesikke"
         val ident = "12345678900"
 
-        opprettetEvent(soknadsId, ident, mottatteVedlegg = emptyList()).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident, mottatteVedlegg = emptyList()).let { messageBroadcaster.broadcastJson(it) }
         vedleggOppdatertEvent(soknadsId, vedleggsId, linkVedlegg = "https://ny.link").let { messageBroadcaster.broadcastJson(it) }
 
         database.firstHistorikkEntry(soknadsId, "vedleggOppdatert").shouldBeNull()

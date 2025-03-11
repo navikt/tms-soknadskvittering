@@ -167,7 +167,7 @@ class VedleggEtterspurtSubscriberTest {
         val vedleggsId = "nylig-etterspurt"
         val ident = "12345678900"
 
-        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
         vedleggEtterspurtEvent(soknadsId, vedleggsId).let { messageBroadcaster.broadcastJson(it) }
 
         database.firstHistorikkEntry(soknadsId, "vedleggEtterspurt").shouldNotBeNull()
@@ -181,7 +181,7 @@ class VedleggEtterspurtSubscriberTest {
 
         val etterspurt = etterspurtVedleggJson(vedleggsId)
 
-        opprettetEvent(soknadsId, ident, etterspurteVedlegg = listOf(etterspurt)).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident, etterspurteVedlegg = listOf(etterspurt)).let { messageBroadcaster.broadcastJson(it) }
         vedleggEtterspurtEvent(soknadsId, vedleggsId).let { messageBroadcaster.broadcastJson(it) }
 
         database.firstHistorikkEntry(soknadsId, "vedleggEtterspurt").shouldBeNull()

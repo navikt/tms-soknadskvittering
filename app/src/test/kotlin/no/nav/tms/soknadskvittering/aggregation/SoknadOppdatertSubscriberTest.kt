@@ -140,7 +140,7 @@ class SoknadOppdatertSubscriberTest {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
         oppdatertEvent(soknadsId, journalpostId = "ny-123").let { messageBroadcaster.broadcastJson(it) }
 
         database.firstHistorikkEntry(soknadsId, "soknadOppdatert").shouldNotBeNull()
@@ -160,7 +160,7 @@ class SoknadOppdatertSubscriberTest {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
         oppdatertEvent(
             soknadsId,
             fristEttersending = null,

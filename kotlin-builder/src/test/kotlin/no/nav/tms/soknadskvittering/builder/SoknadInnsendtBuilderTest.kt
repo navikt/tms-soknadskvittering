@@ -41,6 +41,7 @@ class SoknadInnsendtBuilderTest {
             tidspunktMottatt = ZonedDateTime.parse("2025-02-01T10:00:00Z")
             fristEttersending = LocalDate.parse("2025-03-01")
             linkSoknad = "https://link.til.soknad"
+            linkEttersending = "https://link.til.ettersending"
             journalpostId = "123456"
             produsent = Produsent("cluster", "namespace", "app")
 
@@ -75,6 +76,7 @@ class SoknadInnsendtBuilderTest {
             json["tidspunktMottatt"].asText() shouldBe "2025-02-01T10:00:00Z"
             json["fristEttersending"].asText() shouldBe "2025-03-01"
             json["linkSoknad"].asText() shouldBe "https://link.til.soknad"
+            json["linkEttersending"].asText() shouldBe "https://link.til.ettersending"
             json["journalpostId"].asText() shouldBe "123456"
 
             json["mottatteVedlegg"].size() shouldBe 2
@@ -171,6 +173,7 @@ class SoknadInnsendtBuilderTest {
             tidspunktMottatt = ZonedDateTime.parse("2025-02-01T10:00:00Z")
             fristEttersending = LocalDate.parse("2025-03-01")
             linkSoknad = "https://link.til.soknad"
+            linkEttersending = "https://link.til.ettersending"
             journalpostId = "123456"
             produsent = Produsent("cluster", "namespace", "app")
         }
@@ -178,6 +181,7 @@ class SoknadInnsendtBuilderTest {
         shouldNotThrowAny {
             SoknadEventBuilder.innsendt(validInstance) {
                 linkSoknad = null
+                linkEttersending = null
                 journalpostId = null
             }
         }

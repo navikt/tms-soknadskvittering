@@ -43,6 +43,7 @@ class SoknadInnsendtSubscriberTest {
         val tidspunktMottatt = nowAtUtc().minusMinutes(1)
         val fristEttersending = LocalDate.now().plusDays(14)
         val linkSoknad = "https://link.til.soknad"
+        val linkEttersending = "https://link.til.ettersending"
         val journalpostId = "123"
 
         val mottattVedleggVedleggsId = "vedlegg-1"
@@ -64,6 +65,7 @@ class SoknadInnsendtSubscriberTest {
             tidspunktMottatt = tidspunktMottatt,
             fristEttersending = fristEttersending,
             linkSoknad = linkSoknad,
+            linkEttersending = linkEttersending,
             journalpostId = journalpostId,
             mottatteVedlegg = listOf(
                 mottattVedleggJson(
@@ -97,6 +99,7 @@ class SoknadInnsendtSubscriberTest {
             it.tidspunktMottatt shouldBeSameTimeAs tidspunktMottatt
             it.fristEttersending shouldBe fristEttersending
             it.linkSoknad shouldBe linkSoknad
+            it.linkEttersending shouldBe linkEttersending
             it.journalpostId shouldBe journalpostId
         }
 
@@ -201,9 +204,9 @@ class SoknadInnsendtSubscriberTest {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
 
-        database.firstHistorikkEntry(soknadsId, "soknadOpprettet").shouldNotBeNull()
+        database.firstHistorikkEntry(soknadsId, "soknadInnsendt").shouldNotBeNull()
     }
 
     @Test
@@ -211,12 +214,12 @@ class SoknadInnsendtSubscriberTest {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
 
-        database.getHistorikkEntries(soknadsId, "soknadOpprettet").size shouldBe 1
+        database.getHistorikkEntries(soknadsId, "soknadInnsendt").size shouldBe 1
 
-        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
 
-        database.getHistorikkEntries(soknadsId, "soknadOpprettet").size shouldBe 1
+        database.getHistorikkEntries(soknadsId, "soknadInnsendt").size shouldBe 1
     }
 }

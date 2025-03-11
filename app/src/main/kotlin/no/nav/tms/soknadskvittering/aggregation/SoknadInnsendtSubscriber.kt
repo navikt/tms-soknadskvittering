@@ -33,6 +33,7 @@ class SoknadInnsendtSubscriber(
         )
         .withOptionalFields(
             "linkSoknad",
+            "linkEttersending",
             "journalpostId",
             "metadata"
         )
@@ -77,6 +78,7 @@ class SoknadInnsendtSubscriber(
             tidspunktMottatt = innsendtEvent.tidspunktMottatt,
             fristEttersending = innsendtEvent.fristEttersending,
             linkSoknad = innsendtEvent.linkSoknad,
+            linkEttersending = innsendtEvent.linkEttersending,
             journalpostId = innsendtEvent.journalpostId,
             mottatteVedlegg = mottatteVedlegg,
             etterspurteVedlegg = etterspurteVedlegg,
@@ -91,7 +93,7 @@ class SoknadInnsendtSubscriber(
 
         repository.insertSoknadsKvittering(soknadsKvittering).let { wasCreated ->
             if (wasCreated) {
-                historikkAppender.soknadOpprettet(opprettetEvent)
+                historikkAppender.soknadInnsendt(innsendtEvent)
                 log.info { "Opprettet kvittering for innsendt søknad" }
             } else {
                 log.warn { "Ignorerte duplikat soknadskvittering" }

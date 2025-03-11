@@ -65,7 +65,7 @@ class SoknadFerdigstiltSubscriberTest {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
         ferdigstiltEvent(soknadsId).let { messageBroadcaster.broadcastJson(it) }
 
         database.firstHistorikkEntry(soknadsId, "soknadFerdigstilt").shouldNotBeNull()

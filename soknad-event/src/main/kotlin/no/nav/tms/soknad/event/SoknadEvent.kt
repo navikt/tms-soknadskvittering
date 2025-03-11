@@ -16,6 +16,7 @@ object SoknadEvent {
         val tidspunktMottatt: ZonedDateTime,
         val fristEttersending: LocalDate,
         val linkSoknad: String?,
+        val linkEttersending: String?,
         val journalpostId: String?,
         val mottatteVedlegg: List<Dto.MottattVedlegg>,
         val etterspurteVedlegg: List<Dto.EtterspurtVedlegg>,

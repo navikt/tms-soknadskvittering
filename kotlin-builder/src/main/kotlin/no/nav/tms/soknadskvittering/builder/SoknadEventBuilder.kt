@@ -124,6 +124,7 @@ object SoknadEventBuilder {
         var tidspunktMottatt: ZonedDateTime? = null
         var fristEttersending: LocalDate? = null
         var linkSoknad: String? = null
+        var linkEttersending: String? = null
         var journalpostId: String? = null
         var produsent: Produsent? = produsent()
 
@@ -149,6 +150,7 @@ object SoknadEventBuilder {
             tidspunktMottatt = tidspunktMottatt!!,
             fristEttersending = fristEttersending!!,
             linkSoknad = linkSoknad,
+            linkEttersending = linkEttersending,
             journalpostId = journalpostId,
             mottatteVedlegg = mottatteVedlegg.map { it.buildDto() },
             etterspurteVedlegg = etterspurteVedlegg.map { it.buildDto() },

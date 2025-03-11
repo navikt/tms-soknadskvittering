@@ -19,6 +19,7 @@ object SoknadInnsendtValidation {
         SkjemanummerLengthValidator,
         JournalpostIdLengthValidator,
         LinkSoknadValidator,
+        LinkEttersendingValidator,
 
         VedleggsIdLengthValidator,
         VedleggsIdDuplicateValidator,
@@ -98,6 +99,14 @@ object SoknadInnsendtValidation {
 
         override fun validate(event: SoknadInnsendt) = assertTrue {
             LinkContentValidator.validate(event.linkSoknad)
+        }
+    }
+
+    private object LinkEttersendingValidator: SoknadInnsendtValidator {
+        override val description = LinkContentValidator.description
+
+        override fun validate(event: SoknadInnsendt) = assertTrue {
+            LinkContentValidator.validate(event.linkEttersending)
         }
     }
 
