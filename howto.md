@@ -13,7 +13,7 @@ presenteres for bruker en sentral plass.
 
 I skrivende stund støtter systemet følgende eventer:
 
-- `soknadOpprettet`: Innledende event med informasjon som er umiddelbart tilgjengelig (Tittel, arkivtema, skjemanummer etc).
+- `soknadInnsendt`: Innledende event med informasjon som er umiddelbart tilgjengelig (Tittel, arkivtema, skjemanummer etc).
 - `soknadOppdatert`: Event med forsinket informasjon, som for eksempel lenke til pdf av søknaden.
 - `soknadFerdigstilt`: Event som melder at søknaden på ett eller annet vis er ferdigbehandlet.
 - `vedleggEtterspurt`: Event som inntreffer dersom bruker må ettersende ytterligere informasjon. 
@@ -26,7 +26,7 @@ Min side varsler bruker ikke lenger Avro for schema-validering og serialisering.
 
 Vi tilbyr et sett med buildere for kotlin-prosjekter. Builderne sørger for at format er riktig og gjør forhåndsvalidering av innhold. Det er anbefalt å bruke søknadsId som kafka-nøkkel for alle eventer, for å opprettholde kronologi per enkelt søknad.
 
-Builderne finnes i følgende bibliotek: `no.nav.tms.soknadskvittering:kotlin-builder:0.1.1`
+Builderne finnes i følgende bibliotek: `no.nav.tms.soknadskvittering:kotlin-builder:0.2.0`
 
 Vi publiserer disse artifaktene til githubs package-repository. Husk å legge til én av disse repositories i ditt prosjekt:
 
@@ -44,7 +44,7 @@ val producer: KafkaProducer<String, String>
 val topic = "min-side.aapen-soknadskvittering-v1"
 
 fun createAndSend(soknadsId: String) {
-    val event = SoknadEventBuilder.opprettet {
+    val event = SoknadEventBuilder.innsendt {
         this.soknadsId = soknadsId
         //...
     }
@@ -55,36 +55,39 @@ fun createAndSend(soknadsId: String) {
 
 ## Beskrivelse av søknad-eventer
 
-### Søknad opprettet
+### Søknad innsendt
 
 Skal sendes når Nav mottar en søknad fra bruker
 
-| felt               | påkrevd          | beskrivelse                                                                  | restriksjoner                                                         |
-|--------------------|------------------|------------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| soknadsId          | ja               | Id til søknaden                                                              | Må være UUID eller ULID                                               |
-| ident              | ja               | Fodselsnummer (evt. d-nummer eller tilsvarende) til bruker søknaden tilhører | Må ha 11 siffer                                                       |
-| tittel             | ja               | Tittel på søknaden                                                           | Maks 80 tegn                                                          |
-| temakode           | ja, minst 1      | Søknadens arkivtemakode                                                      | Maks 3 tegn                                                           |
-| skjemanummer       | ikke for beskjed | Søknadens skjemanummer                                                       | Maks 40 tegn                                                          |
-| tidspunktMottatt   | ja               | Tidspunktet Nav først mottok søknad fra bruker                               |                                                                       |
-| fristEttersending  | ja               | Dato med frist for ettersending av vedlegg                                   |                                                                       |
-| linkSoknad         | nei              | Link til kopi av søknaden der dette er tilgjengelig                          | Må være gyldig lenke og maks 200 tegn                                 |
-| journalpostId      | nei              | Evt journalpostId fra SAF                                                    | Maks 20 tegn                                                          |
-| mottatteVedlegg    | nei              | Liste over vedlegg som ble mottatt sammen med søknaden                       | VedleggsId må være unikt på tvers av mottatte og etterspurte vedlegg  |
-| etterspurteVedlegg | nei              | Liste over vedlegg som mangler i det bruker sendte inn søknaden              |                                                                       |
+| felt               | påkrevd | beskrivelse                                                                  | restriksjoner                                                         |
+|--------------------|---------|------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| soknadsId          | ja      | Id til søknaden                                                              | Må være UUID eller ULID                                               |
+| ident              | ja      | Fodselsnummer (evt. d-nummer eller tilsvarende) til bruker søknaden tilhører | Må ha 11 siffer                                                       |
+| tittel             | ja      | Tittel på søknaden                                                           | Maks 80 tegn                                                          |
+| temakode           | ja      | Søknadens arkivtemakode                                                      | Maks 3 tegn                                                           |
+| skjemanummer       | ja      | Søknadens skjemanummer                                                       | Maks 40 tegn                                                          |
+| tidspunktMottatt   | ja      | Tidspunktet Nav først mottok søknad fra bruker                               |                                                                       |
+| fristEttersending  | ja      | Dato med frist for ettersending av vedlegg                                   |                                                                       |
+| linkSoknad         | nei     | Link til kopi av søknaden der dette er tilgjengelig                          | Må være gyldig lenke og maks 200 tegn                                 |
+| linkEttersending   | nei     | Link til generell ettersendingsløsning der dette er tilgjengelig             | Må være gyldig lenke og maks 200 tegn                                 |
+| journalpostId      | nei     | Evt journalpostId fra SAF                                                    | Maks 20 tegn                                                          |
+| mottatteVedlegg    | nei     | Liste over vedlegg som ble mottatt sammen med søknaden                       | VedleggsId må være unikt på tvers av mottatte og etterspurte vedlegg  |
+| etterspurteVedlegg | nei     | Liste over vedlegg som mangler i det bruker sendte inn søknaden              |                                                                       |
 
+JournalpostId brukes til å lenke til tilhørende journalpost i dokumentarkivet, dersom en mer presis lenke ikke er oppgitt.
 
 Praktisk eksempel med kotlin builder. Her er journalpostId og lenker til søknad og vedlegg er ikke enda klart. Bruker har også meldt at legen sender inn ytterligere informasjon.
 
 ```kotlin
 
-SoknadEventBuilder.opprettet {
+SoknadEventBuilder.innsendt {
    soknadsId = "<uuid>"
    ident = "01234567890"
    tittel = "Tittel på en søknad"
    temakode = "UKJ"
    skjemanummer = "Skjemanummer-123"
    fristEttersending = LocalDate.now().plusDays(14)
+   linkEttersending = "https://ettersending.nav.no"
    mottattVedlegg {
        vedleggsId = "vedlegg-1"
        tittel = "Vedlegg som bruker sendte inn sammen med søknad"
@@ -102,7 +105,7 @@ SoknadEventBuilder.opprettet {
 
 ### Søknad oppdatert
 
-Tillater endringer av bestemte felt etter søknad er opprettet. Dersom et felt er `null` blir ingen endring gjort. Dvs at en kan endre felt fra `null`, men ikke til `null`.
+Tillater endringer av bestemte felt etter søknad er innsendt. Dersom et felt er `null` blir ingen endring gjort. Dvs at en kan endre felt fra `null`, men ikke til `null`.
 
 | felt              | påkrevd | beskrivelse                                         | restriksjoner                         |
 |-------------------|---------|-----------------------------------------------------|---------------------------------------|
@@ -150,14 +153,14 @@ SoknadEventBuilder.ferdigstilt {
 
 Sendes når Nav krever ytterligere vedlegg for en søknad av bruker
 
-| felt                | påkrevd | beskrivelse                                   | restriksjoner                                                                  |
-|---------------------|---------|-----------------------------------------------|--------------------------------------------------------------------------------|
-| soknadsId           | ja      | Id til søknaden                               | Må være UUID eller ULID                                                        |
-| vedleggsId          | ja      | Id til vedlegg                                | Må være unik innen én søknad. Kan ikke etterspørre samme vedlegg flere ganger  |
-| brukerErAvsender    | ja      | Om bruker eller tredjepart skal sende vedlegg |                                                                                |
-| tittel              | ja      | Tittel på etterspurt vedlegg                  | Maks 255 tegn                                                                  |
-| linkEttersending    | ja      | Link til der bruker skal ettersende vedlegg   | Gyldig lenke og maks 200 tegn                                                  |
-| tidspunktEtterspurt | ja      | Dato med frist for ettersending av vedlegg    |                                                                                |
+| felt                | påkrevd | beskrivelse                                                                                       | restriksjoner                                                                  |
+|---------------------|---------|---------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| soknadsId           | ja      | Id til søknaden                                                                                   | Må være UUID eller ULID                                                        |
+| vedleggsId          | ja      | Id til vedlegg                                                                                    | Må være unik innen én søknad. Kan ikke etterspørre samme vedlegg flere ganger  |
+| brukerErAvsender    | ja      | Om bruker eller tredjepart skal sende vedlegg                                                     |                                                                                |
+| tittel              | ja      | Tittel på etterspurt vedlegg                                                                      | Maks 255 tegn                                                                  |
+| linkEttersending    | ja      | Spisset link til der bruker skal ettersende vedlegg (der dette er forskjellig fra generell lenke) | Gyldig lenke og maks 200 tegn                                                  |
+| tidspunktEtterspurt | ja      | Dato med frist for ettersending av vedlegg                                                        |                                                                                |
 
 
 Praktisk eksempel med kotlin builder.
@@ -207,9 +210,11 @@ Sendes når Nav mottar vedlegg. Dersom det finnes et etterspurt vedlegg med samm
 | vedleggsId       | ja      | Id til vedlegg                                   | Må være unik innen én søknad. Kan ikke motta samme vedlegg flere ganger |
 | tittel           | ja      | Tittel på mottatt vedlegg                        | Maks 255 tegn                                                           |
 | linkVedlegg      | nei     | Link til kopi av vedlegg                         | Gyldig lenke og maks 200 tegn                                           |
+| journalpostId    | nei     | Evt journalpostId fra SAF                        | Maks 20 tegn                                                            |
 | brukerErAvsender | ja      | Om bruker eller tredjepart er kilden til vedlegg |                                                                         |
 | tidspunktMottatt | ja      | Tidspunkt Nav mottok vedlegg                     |                                                                         |
 
+Dersom en mer presis lenke ikke er oppgitt, brukes JournalpostId til å lenke til tilhørede journalpost i dokumentarkivet, 
 
 Praktiske eksempel med kotlin builder der bruker har sendt inn et vedlegg.
 
@@ -229,11 +234,14 @@ Tillater endringer av bestemte felt etter vedlegg er mottatt. Dersom et felt er 
 
 I skrivende stund kan en kun oppdatere lenke til vedlegg.
 
-| felt        | påkrevd | beskrivelse              | restriksjoner                         |
-|-------------|---------|--------------------------|---------------------------------------|
-| soknadsId   | ja      | Id til søknaden          | Må være UUID eller ULID               |
-| vedleggsId  | ja      | Id til vedlegg           | Må matche et mottatt vedlegg.         |
-| linkVedlegg | nei     | Link til kopi av vedlegg | Må være gyldig lenke og maks 200 tegn |
+| felt          | påkrevd | beskrivelse               | restriksjoner                         |
+|---------------|---------|---------------------------|---------------------------------------|
+| soknadsId     | ja      | Id til søknaden           | Må være UUID eller ULID               |
+| vedleggsId    | ja      | Id til vedlegg            | Må matche et mottatt vedlegg.         |
+| linkVedlegg   | nei     | Link til kopi av vedlegg  | Må være gyldig lenke og maks 200 tegn |
+| journalpostId | nei     | Evt journalpostId fra SAF | Maks 20 tegn                          |
+
+Dersom en mer presis lenke ikke er oppgitt, brukes JournalpostId til å lenke til tilhørede journalpost i dokumentarkivet,
 
 
 Praktisk eksempel med kotlin builder. Her blir vedlegg oppdatert etter pdf er ferdig generert.

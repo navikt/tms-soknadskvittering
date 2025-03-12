@@ -24,7 +24,7 @@ fun main() {
         }
 
         subscribers(
-            SoknadOpprettetSubscriber(repository, historikkAppender),
+            SoknadInnsendtSubscriber(repository, historikkAppender),
             SoknadOppdatertSubscriber(repository, historikkAppender),
             SoknadFerdigstiltSubscriber(repository, historikkAppender),
             VedleggEtterspurtSubscriber(repository, historikkAppender),

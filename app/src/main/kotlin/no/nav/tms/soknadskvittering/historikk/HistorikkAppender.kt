@@ -12,7 +12,7 @@ class HistorikkAppender(private val repository: HistorikkRepository) {
 
     private val objectMapper = initializeFilteredMapper("eventName", "soknadsId", "produsent", "metadata")
 
-    fun soknadOpprettet(event: SoknadEvent.SoknadOpprettet) {
+    fun soknadInnsendt(event: SoknadEvent.SoknadInnsendt) {
         HistorikkEntry(
             soknadsId = event.soknadsId,
             event = event.eventName,

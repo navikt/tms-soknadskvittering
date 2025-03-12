@@ -19,16 +19,16 @@ object SoknadEventBuilder {
         .build()
         .setSerializationInclusion(JsonInclude.Include.NON_NULL)
 
-    fun opprettet(builderFunction: SoknadOpprettetInstance.() -> Unit): String {
-        return opprettet(SoknadOpprettetInstance(), builderFunction)
+    fun innsendt(builderFunction: SoknadInnsendtInstance.() -> Unit): String {
+        return innsendt(SoknadInnsendtInstance(), builderFunction)
     }
 
-    internal fun opprettet(instance: SoknadOpprettetInstance, builderFunction: SoknadOpprettetInstance.() -> Unit): String {
+    internal fun innsendt(instance: SoknadInnsendtInstance, builderFunction: SoknadInnsendtInstance.() -> Unit): String {
         instance.builderFunction()
         instance.performNullCheck()
 
         return instance.build()
-            .also { SoknadOpprettetValidation.validate(it) }
+            .also { SoknadInnsendtValidation.validate(it) }
             .let { objectMapper.writeValueAsString(it) }
     }
 
@@ -115,7 +115,7 @@ object SoknadEventBuilder {
             .let { objectMapper.writeValueAsString(it) }
     }
 
-    class SoknadOpprettetInstance internal constructor() {
+    class SoknadInnsendtInstance internal constructor() {
         var soknadsId: String? = null
         var ident: String? = null
         var tittel: String? = null
@@ -124,6 +124,7 @@ object SoknadEventBuilder {
         var tidspunktMottatt: ZonedDateTime? = null
         var fristEttersending: LocalDate? = null
         var linkSoknad: String? = null
+        var linkEttersending: String? = null
         var journalpostId: String? = null
         var produsent: Produsent? = produsent()
 
@@ -140,7 +141,7 @@ object SoknadEventBuilder {
             etterspurteVedlegg.add(EtterspurtVedlegg().apply(builder))
         }
 
-        internal fun build() = SoknadEvent.SoknadOpprettet(
+        internal fun build() = SoknadEvent.SoknadInnsendt(
             soknadsId = soknadsId!!,
             ident = ident!!,
             tittel = tittel!!,
@@ -149,6 +150,7 @@ object SoknadEventBuilder {
             tidspunktMottatt = tidspunktMottatt!!,
             fristEttersending = fristEttersending!!,
             linkSoknad = linkSoknad,
+            linkEttersending = linkEttersending,
             journalpostId = journalpostId,
             mottatteVedlegg = mottatteVedlegg.map { it.buildDto() },
             etterspurteVedlegg = etterspurteVedlegg.map { it.buildDto() },
@@ -179,11 +181,13 @@ object SoknadEventBuilder {
         var vedleggsId: String? = null
         var tittel: String? = null
         var linkVedlegg: String? = null
+        var journalpostId: String? = null
 
         fun buildDto() = SoknadEvent.Dto.MottattVedlegg(
             vedleggsId = vedleggsId!!,
             tittel = tittel!!,
-            linkVedlegg = linkVedlegg
+            linkVedlegg = linkVedlegg,
+            journalpostId = journalpostId
         )
 
         internal fun performNullCheck(index: Int) {
@@ -339,6 +343,7 @@ object SoknadEventBuilder {
         var vedleggsId: String? = null
         var tittel: String? = null
         var linkVedlegg: String? = null
+        var journalpostId: String? = null
         var brukerErAvsender: Boolean? = null
         var tidspunktMottatt: ZonedDateTime? = null
         var produsent: Produsent? = produsent()
@@ -350,6 +355,7 @@ object SoknadEventBuilder {
             vedleggsId = vedleggsId!!,
             tittel = tittel!!,
             linkVedlegg = linkVedlegg,
+            journalpostId = journalpostId,
             brukerErAvsender = brukerErAvsender!!,
             tidspunktMottatt = tidspunktMottatt!!,
             produsent = produsent!!,
@@ -372,6 +378,7 @@ object SoknadEventBuilder {
         var soknadsId: String? = null
         var vedleggsId: String? = null
         var linkVedlegg: String? = null
+        var journalpostId: String? = null
         var produsent: Produsent? = produsent()
 
         val metadata = metadata()
@@ -380,6 +387,7 @@ object SoknadEventBuilder {
             soknadsId = soknadsId!!,
             vedleggsId = vedleggsId!!,
             linkVedlegg = linkVedlegg,
+            journalpostId = journalpostId,
             produsent = produsent!!,
             metadata = metadata
         )

@@ -10,9 +10,6 @@ import no.nav.tms.soknadskvittering.aggregation.SoknadsKvitteringRepository
 import no.nav.tms.soknadskvittering.common.LocalPostgresDatabase
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper
 import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper.asZonedDateTime
-import no.nav.tms.soknadskvittering.setup.json
-import no.nav.tms.soknadskvittering.setup.jsonOrNull
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -40,7 +37,7 @@ class HistorikkAppenderTest {
     }
 
     @Test
-    fun `legger til opprettet-event på ventet format`() {
+    fun `legger til innsendt-event på ventet format`() {
         val ident = "12345678900"
         val tittel = "En søknad"
         val temakode = "AAP"
@@ -48,11 +45,13 @@ class HistorikkAppenderTest {
         val tidspunktMottatt = ZonedDateTimeHelper.nowAtUtc().minusMinutes(1)
         val fristEttersending = LocalDate.now().plusDays(14)
         val linkSoknad = "https://link.til.soknad"
+        val linkEttersending = "https://link.til.ettersending"
         val journalpostId = "123"
 
         val mottattVedleggVedleggsId = "vedlegg-1"
         val mottattVedleggTittel = "Ett eller annet dokument"
         val mottattVedleggLinkVedlegg = "http://dokument-db/brukers-fil.pdf"
+        val mottattVedleggJournalpostId = "456"
 
         val etterspurtVedleggVedleggsId = "vedlegg-2"
         val etterspurtVedleggBrukerErAvsender = false
@@ -62,7 +61,7 @@ class HistorikkAppenderTest {
 
         val produsent = SoknadEvent.Dto.Produsent("dev", "team", "app")
 
-        SoknadEvent.SoknadOpprettet(
+        SoknadEvent.SoknadInnsendt(
             soknadsId = soknadsId,
             ident = ident,
             tittel = tittel,
@@ -71,12 +70,14 @@ class HistorikkAppenderTest {
             tidspunktMottatt = tidspunktMottatt,
             fristEttersending = fristEttersending,
             linkSoknad = linkSoknad,
+            linkEttersending = linkEttersending,
             journalpostId = journalpostId,
             mottatteVedlegg = listOf(
                 SoknadEvent.Dto.MottattVedlegg(
                     vedleggsId = mottattVedleggVedleggsId,
                     tittel = mottattVedleggTittel,
-                    linkVedlegg = mottattVedleggLinkVedlegg
+                    linkVedlegg = mottattVedleggLinkVedlegg,
+                    journalpostId = mottattVedleggJournalpostId
                 )
             ),
             etterspurteVedlegg = listOf(
@@ -90,12 +91,12 @@ class HistorikkAppenderTest {
             ),
             produsent = produsent,
             metadata = null
-        ).let { appender.soknadOpprettet(it) }
+        ).let { appender.soknadInnsendt(it) }
 
         val entry = database.firstHistorikkEntry(soknadsId)
 
         entry.shouldNotBeNull()
-        entry.event shouldBe "soknadOpprettet"
+        entry.event shouldBe "soknadInnsendt"
         entry.soknadsId shouldBe soknadsId
         entry.produsent shouldBe produsent
 
@@ -229,6 +230,7 @@ class HistorikkAppenderTest {
         val brukerErAvsender = true
         val tittel = "Tittel på vedlegg som er mottatt"
         val linkVedlegg = "https://link.til.vedlegg"
+        val journalpostId = "123456"
 
         val tidspunkt = ZonedDateTime.parse("2025-03-02T12:00:00Z")
 
@@ -240,6 +242,7 @@ class HistorikkAppenderTest {
             brukerErAvsender = brukerErAvsender,
             tittel = tittel,
             linkVedlegg = linkVedlegg,
+            journalpostId = journalpostId,
             tidspunktMottatt = tidspunkt,
             produsent = produsent,
             metadata = null,
@@ -269,6 +272,7 @@ class HistorikkAppenderTest {
 
         val vedleggsId = "vedlegg-3"
         val linkVedlegg = "https://ny.link.til.vedlegg"
+        val journalpostId = "123456"
 
         val produsent = SoknadEvent.Dto.Produsent("dev", "team", "app")
 
@@ -276,6 +280,7 @@ class HistorikkAppenderTest {
             soknadsId = soknadsId,
             vedleggsId = vedleggsId,
             linkVedlegg = linkVedlegg,
+            journalpostId = journalpostId,
             produsent = produsent,
             metadata = null,
         ).let { appender.vedleggOppdatert(it) }
@@ -292,6 +297,7 @@ class HistorikkAppenderTest {
             innhold.shouldNotBeNull()
             innhold["vedleggsId"].asText() shouldBe vedleggsId
             innhold["linkVedlegg"].asText() shouldBe linkVedlegg
+            innhold["journalpostId"].asText() shouldBe journalpostId
         }
     }
 
@@ -334,7 +340,8 @@ class HistorikkAppenderTest {
             skjemanummer = "dummy",
             tidspunktMottatt = ZonedDateTime.now(),
             fristEttersending = LocalDate.now(),
-            linkSoknad = "dummy",
+            linkSoknad = "https://dummy",
+            linkEttersending = "https://dummy",
             journalpostId = "dummy",
             mottatteVedlegg = emptyList(),
             etterspurteVedlegg = emptyList(),

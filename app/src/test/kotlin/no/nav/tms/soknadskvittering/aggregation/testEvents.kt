@@ -4,7 +4,7 @@ import no.nav.tms.soknadskvittering.setup.ZonedDateTimeHelper.nowAtUtc
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
-fun opprettetEvent(
+fun innsendtEvent(
     soknadsId: String,
     ident: String = "12345678910",
     tittel: String = "tittel",
@@ -13,14 +13,16 @@ fun opprettetEvent(
     tidspunktMottatt: ZonedDateTime = nowAtUtc(),
     fristEttersending: LocalDate = LocalDate.now().plusDays(14),
     linkSoknad: String? = "https://link.til.soknad",
+    linkEttersending: String? = "https://link.til.ettersending",
     journalpostId: String? = "journalpostId",
     mottatteVedlegg: List<String> = emptyList(),
     etterspurteVedlegg: List<String> = emptyList(),
     produsent: String = produsentJson(),
-    metadata: String? = null
+    metadata: String? = null,
+    eventName: String = "soknadInnsendt"
 ) = """
 {
-    "@event_name": "soknadOpprettet",
+    "@event_name": "$eventName",
     "soknadsId": "$soknadsId",
     "ident": "$ident",
     "tittel": "$tittel",
@@ -29,6 +31,7 @@ fun opprettetEvent(
     "tidspunktMottatt": "$tidspunktMottatt",
     "fristEttersending": "$fristEttersending",
     "linkSoknad": ${linkSoknad.asJson()},
+    "linkEttersending": ${linkEttersending.asJson()},
     "journalpostId": ${journalpostId.asJson()},
     "mottatteVedlegg": ${mottatteVedlegg.joinToString(prefix = "[", postfix = "]")},
     "etterspurteVedlegg": ${etterspurteVedlegg.joinToString(prefix = "[", postfix = "]")},
@@ -100,6 +103,7 @@ fun vedleggMottattEvent(
     tittel: String = "tittel",
     brukerErAvsender: Boolean = true,
     linkVedlegg: String? = "https://link.til.vedlegg",
+    journalpostId: String? = "123456",
     tidspunktMottatt: ZonedDateTime = nowAtUtc(),
     produsent: String = produsentJson(),
     metadata: String? = null
@@ -111,6 +115,7 @@ fun vedleggMottattEvent(
     "brukerErAvsender": $brukerErAvsender,
     "tittel": "$tittel",
     "linkVedlegg": ${linkVedlegg.asJson()},
+    "journalpostId": ${journalpostId.asJson()},
     "tidspunktMottatt": "$tidspunktMottatt",
     "produsent": $produsent,
     "metadata": ${metadata.asJson()}
@@ -121,6 +126,7 @@ fun vedleggOppdatertEvent(
     soknadsId: String,
     vedleggsId: String,
     linkVedlegg: String? = "https://link.til.vedlegg",
+    journalpostId: String? = "123456",
     produsent: String = produsentJson(),
     metadata: String? = null
 ) = """
@@ -129,6 +135,7 @@ fun vedleggOppdatertEvent(
     "soknadsId": "$soknadsId",
     "vedleggsId": "$vedleggsId",
     "linkVedlegg": ${linkVedlegg.asJson()},
+    "journalpostId": ${journalpostId.asJson()},
     "produsent": $produsent,
     "metadata": ${metadata.asJson()}
 }
@@ -145,13 +152,15 @@ private fun Any?.asJson() = if (this == null) {
 fun mottattVedleggJson(
     vedleggsId: String,
     tittel: String = "Navn på vedlegg",
-    linkVedlegg: String? = "https://link.til.vedlegg"
+    linkVedlegg: String? = "https://link.til.vedlegg",
+    journalpostId: String? = "123456"
 ) =
     """
 {
     "vedleggsId": "$vedleggsId",
     "tittel": "$tittel",
-    "linkVedlegg": ${linkVedlegg.asJson()}
+    "linkVedlegg": ${linkVedlegg.asJson()},
+    "journalpostId": ${journalpostId.asJson()}
 } 
     """
 

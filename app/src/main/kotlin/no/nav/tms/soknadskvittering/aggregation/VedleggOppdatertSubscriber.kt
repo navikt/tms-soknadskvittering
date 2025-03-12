@@ -25,6 +25,7 @@ class VedleggOppdatertSubscriber(
         )
         .withOptionalFields(
             "linkVedlegg",
+            "journalpostId",
             "metadata"
         )
 
@@ -64,7 +65,8 @@ class VedleggOppdatertSubscriber(
         oppdatertEvent: SoknadEvent.VedleggOppdatert
     ) {
         val oppdatertVedlegg = vedlegg.copy(
-            linkVedlegg = oppdatertEvent.linkVedlegg ?: vedlegg.linkVedlegg
+            linkVedlegg = oppdatertEvent.linkVedlegg ?: vedlegg.linkVedlegg,
+            journalpostId = oppdatertEvent.journalpostId ?: vedlegg.journalpostId
         )
 
         val urelaterteVedlegg = soknadsKvittering.mottatteVedlegg.filter { it.vedleggsId != oppdatertEvent.vedleggsId }

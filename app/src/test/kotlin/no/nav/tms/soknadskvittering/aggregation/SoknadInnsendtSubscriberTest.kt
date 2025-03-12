@@ -17,14 +17,14 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.UUID
 
-class SoknadOpprettetSubscriberTest {
+class SoknadInnsendtSubscriberTest {
 
     private val database = LocalPostgresDatabase.cleanDb()
     private val repository = SoknadsKvitteringRepository(database)
 
     private val appender = HistorikkAppender(HistorikkRepository(database))
 
-    private val messageBroadcaster = MessageBroadcaster(SoknadOpprettetSubscriber(repository, appender))
+    private val messageBroadcaster = MessageBroadcaster(SoknadInnsendtSubscriber(repository, appender))
 
     @AfterEach
     fun cleanUp() {
@@ -43,6 +43,7 @@ class SoknadOpprettetSubscriberTest {
         val tidspunktMottatt = nowAtUtc().minusMinutes(1)
         val fristEttersending = LocalDate.now().plusDays(14)
         val linkSoknad = "https://link.til.soknad"
+        val linkEttersending = "https://link.til.ettersending"
         val journalpostId = "123"
 
         val mottattVedleggVedleggsId = "vedlegg-1"
@@ -55,7 +56,7 @@ class SoknadOpprettetSubscriberTest {
         val etterspurtVedleggBeskrivelse = "Noen andre må gjøre noe på dine vegne. Bla bla bla.."
         val etterspurtVedleggLinkEttersending = null
 
-        val event = opprettetEvent(
+        val event = innsendtEvent(
             soknadsId = soknadsId,
             ident = ident,
             tittel = tittel,
@@ -64,6 +65,7 @@ class SoknadOpprettetSubscriberTest {
             tidspunktMottatt = tidspunktMottatt,
             fristEttersending = fristEttersending,
             linkSoknad = linkSoknad,
+            linkEttersending = linkEttersending,
             journalpostId = journalpostId,
             mottatteVedlegg = listOf(
                 mottattVedleggJson(
@@ -97,6 +99,7 @@ class SoknadOpprettetSubscriberTest {
             it.tidspunktMottatt shouldBeSameTimeAs tidspunktMottatt
             it.fristEttersending shouldBe fristEttersending
             it.linkSoknad shouldBe linkSoknad
+            it.linkEttersending shouldBe linkEttersending
             it.journalpostId shouldBe journalpostId
         }
 
@@ -125,8 +128,8 @@ class SoknadOpprettetSubscriberTest {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        val event1 = opprettetEvent(soknadsId, ident, tittel = "En soknad")
-        val event2 = opprettetEvent(soknadsId, ident, tittel = "En annen soknad")
+        val event1 = innsendtEvent(soknadsId, ident, tittel = "En soknad")
+        val event2 = innsendtEvent(soknadsId, ident, tittel = "En annen soknad")
 
         messageBroadcaster.broadcastJson(event1)
         messageBroadcaster.broadcastJson(event2)
@@ -159,7 +162,7 @@ class SoknadOpprettetSubscriberTest {
         }
         """
 
-        opprettetEvent(
+        innsendtEvent(
             soknadsId,
             ident,
             etterspurteVedlegg = listOf(feltErNull, feltMangler)
@@ -181,13 +184,29 @@ class SoknadOpprettetSubscriberTest {
     }
 
     @Test
+    fun `godtar legacy-event soknadOpprettet`() {
+        val soknadsId = UUID.randomUUID().toString()
+        val ident = "12345678900"
+
+        innsendtEvent(
+            soknadsId,
+            ident,
+            eventName = "soknadOpprettet"
+        ).let { messageBroadcaster.broadcastJson(it) }
+
+
+        val kvittering = repository.getSoknadsKvittering(soknadsId)
+        kvittering.shouldNotBeNull()
+    }
+
+    @Test
     fun `legger til hendelse i event-historikk når søknad blir opprettet`() {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
 
-        database.firstHistorikkEntry(soknadsId, "soknadOpprettet").shouldNotBeNull()
+        database.firstHistorikkEntry(soknadsId, "soknadInnsendt").shouldNotBeNull()
     }
 
     @Test
@@ -195,12 +214,12 @@ class SoknadOpprettetSubscriberTest {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
 
-        database.getHistorikkEntries(soknadsId, "soknadOpprettet").size shouldBe 1
+        database.getHistorikkEntries(soknadsId, "soknadInnsendt").size shouldBe 1
 
-        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
 
-        database.getHistorikkEntries(soknadsId, "soknadOpprettet").size shouldBe 1
+        database.getHistorikkEntries(soknadsId, "soknadInnsendt").size shouldBe 1
     }
 }

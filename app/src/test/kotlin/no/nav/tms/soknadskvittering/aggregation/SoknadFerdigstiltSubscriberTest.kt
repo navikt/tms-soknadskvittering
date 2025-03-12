@@ -21,7 +21,7 @@ class SoknadFerdigstiltSubscriberTest {
     private val appender = HistorikkAppender(HistorikkRepository(database))
 
     private val messageBroadcaster = MessageBroadcaster(
-        SoknadOpprettetSubscriber(repository, appender),
+        SoknadInnsendtSubscriber(repository, appender),
         SoknadFerdigstiltSubscriber(repository, appender)
     )
 
@@ -37,8 +37,8 @@ class SoknadFerdigstiltSubscriberTest {
         val soknadsId2 = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        opprettetEvent(soknadsId1, ident).let { messageBroadcaster.broadcastJson(it) }
-        opprettetEvent(soknadsId2, ident).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId1, ident).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId2, ident).let { messageBroadcaster.broadcastJson(it) }
 
         ferdigstiltEvent(soknadsId1).let { messageBroadcaster.broadcastJson(it) }
 
@@ -65,7 +65,7 @@ class SoknadFerdigstiltSubscriberTest {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
         ferdigstiltEvent(soknadsId).let { messageBroadcaster.broadcastJson(it) }
 
         database.firstHistorikkEntry(soknadsId, "soknadFerdigstilt").shouldNotBeNull()

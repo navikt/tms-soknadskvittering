@@ -13,6 +13,7 @@ object DatabaseDto {
         val tidspunktMottatt: ZonedDateTime,
         val fristEttersending: LocalDate,
         val linkSoknad: String?,
+        val linkEttersending: String?,
         val journalpostId: String?,
         val mottatteVedlegg: List<MottattVedlegg>,
         val etterspurteVedlegg: List<EtterspurtVedlegg>,
@@ -27,6 +28,7 @@ object DatabaseDto {
         val erEttersending: Boolean,
         val tittel: String,
         val linkVedlegg: String?,
+        val journalpostId: String?,
         val tidspunktMottatt: ZonedDateTime
     )
 

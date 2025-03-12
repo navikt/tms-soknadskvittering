@@ -63,11 +63,23 @@ class VedleggOppdatertValidationTest {
         }
     }
 
+    @Test
+    fun `tillater at journalpostId er for lang`() {
+        shouldNotThrow<SoknadskvitteringValidationException> {
+            validEvent.copy(
+                vedleggsId = "${text10Chars.repeat(2)}+"
+            ).let {
+                VedleggOppdatertValidation.validate(it)
+            }
+        }
+    }
+
 
     private fun vedleggOppdatert() = SoknadEvent.VedleggOppdatert(
         soknadsId = UUID.randomUUID().toString(),
         vedleggsId = "vedlegg-1",
         linkVedlegg = "https://ny.link.til.vedlegg",
+        journalpostId = "123456",
         produsent = SoknadEvent.Dto.Produsent("dev", "team", "app"),
         metadata = mapOf("meta" to "data"),
     )

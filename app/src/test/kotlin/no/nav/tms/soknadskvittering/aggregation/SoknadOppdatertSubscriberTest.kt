@@ -22,7 +22,7 @@ class SoknadOppdatertSubscriberTest {
     private val appender = HistorikkAppender(HistorikkRepository(database))
 
     private val messageBroadcaster = MessageBroadcaster(
-        SoknadOpprettetSubscriber(repository, appender),
+        SoknadInnsendtSubscriber(repository, appender),
         SoknadOppdatertSubscriber(repository, appender)
     )
 
@@ -41,7 +41,7 @@ class SoknadOppdatertSubscriberTest {
         val originalLinkSoknad = null
         val originalJournalpostId = null
 
-        opprettetEvent(
+        innsendtEvent(
             soknadsId,
             ident,
             fristEttersending = originalFristEttersending,
@@ -83,7 +83,7 @@ class SoknadOppdatertSubscriberTest {
         val endeligLink = "https://en.link"
         val endeligJournalpostId = "journalpost-1"
 
-        opprettetEvent(
+        innsendtEvent(
             soknadsId,
             ident,
             linkSoknad = null,
@@ -140,7 +140,7 @@ class SoknadOppdatertSubscriberTest {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
         oppdatertEvent(soknadsId, journalpostId = "ny-123").let { messageBroadcaster.broadcastJson(it) }
 
         database.firstHistorikkEntry(soknadsId, "soknadOppdatert").shouldNotBeNull()
@@ -160,7 +160,7 @@ class SoknadOppdatertSubscriberTest {
         val soknadsId = UUID.randomUUID().toString()
         val ident = "12345678900"
 
-        opprettetEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
+        innsendtEvent(soknadsId, ident).let { messageBroadcaster.broadcastJson(it) }
         oppdatertEvent(
             soknadsId,
             fristEttersending = null,
